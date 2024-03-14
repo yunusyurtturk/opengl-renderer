@@ -140,7 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CompiledShaderProgram.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ShaderCompiler.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Utils.h" />
@@ -148,8 +150,9 @@
     <ClInclude Include="WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.fs" />
-    <None Include="Shader.vs" />
+    <None Include="Shaders\shader.fs" />
+    <None Include="Shaders\shader.vs" />
+    <None Include="Shaders\shader2.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,7 +22,8 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Utils.h"
-
+#include "ShaderCompiler.h"
+#include "CompiledShaderProgram.h"
 #include "Object.h"
 
 typedef int32_t i32;
@@ -40,9 +41,7 @@ typedef glm::vec3 Vector3f;
 GLuint VAO;
 GLuint VBO;
 GLuint IBO;
-GLuint gVPLocation;
 GLuint gWLocation;
-GLuint gSamplerLocation;
 GLuint texture;
 GLuint ShaderProgram;
 
@@ -84,8 +83,8 @@ static void RenderSceneCB(ModelObject& Cube, ModelObject& Cube2)
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
     glm::mat4x4 VP = Projection * View;
 
-    Cube.Update(gVPLocation, VP);
-    Cube2.Update(gVPLocation, VP);
+    Cube.Update(VP);
+    Cube2.Update(VP);
 
 }
 
@@ -145,7 +144,7 @@ static void CreateIndexBuffer()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
 }
-
+#if 0
 const char* pVSFileName = "shader.vs";
 const char* pFSFileName = "shader.fs";
 
@@ -201,6 +200,9 @@ static void CompileShaders()
         exit(1);
     }
     AddShader(ShaderProgram, fs.c_str(), GL_FRAGMENT_SHADER);
+    if (!ReadFile(pFSFileName, fs)) {
+        exit(1);
+    }
 
     GLint Success = 0;
     GLchar ErrorLog[1024] = { 0 };
@@ -243,6 +245,7 @@ static void CompileShaders()
 
     glUseProgram(ShaderProgram);
 }
+#endif 
 
 int main(int ArgCount, char** Args)
 {
@@ -276,25 +279,25 @@ int main(int ArgCount, char** Args)
         fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
         return 1;
     }
+    ShaderCompiler shaderCompiler;
 
     glEnable(GL_CULL_FACE);
-    //  glFrontFace(GL_CW);
-    //  glCullFace(GL_BACK);
 
+    const std::string pVSFileName  = "./Shaders/shader.vs";
+    const std::string pFSFileName  = "./Shaders/shader.fs";
+    const std::string pFSFileName2 = "./Shaders/shader2.fs";
+    CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
+    CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
 
-  //    CreateVertexBuffer();
-  //    CreateIndexBuffer();
-    CompileShaders();
-    //Texture textureObj("container.jpg", texture);
-    //Texture textureObj2("bricks.jpg", texture);
     ModelObject Cube;
-    Cube.AddShader(ShaderProgram);
+    Cube.AddShader(textureShader);
     Cube.SetTexture("bricks.jpg");
+    Cube.SetPosition(0.0, 0.0f, -2.0f);
 
     ModelObject Cube2;
-    Cube2.AddShader(ShaderProgram);
+    Cube2.AddShader(textureShader2);
     Cube2.SetTexture("container.jpg");
-    Cube2.SetPosition(0.0, 2.0f, -3.0f);
+    Cube2.SetPosition(0.0, -1.0f, -4.0f);
 
 
     while (Running)

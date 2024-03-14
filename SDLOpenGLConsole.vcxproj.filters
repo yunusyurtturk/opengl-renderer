@@ -56,13 +56,20 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderCompiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CompiledShaderProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.fs">
+    <None Include="Shaders\shader.fs">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shader.vs">
+    <None Include="Shaders\shader.vs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\shader2.fs" />
   </ItemGroup>
 </Project>

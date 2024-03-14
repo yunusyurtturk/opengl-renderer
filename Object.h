@@ -28,9 +28,10 @@ private:
 	GLuint texture = -1;
 	GLuint gWLocation = -1;
 	GLuint gSamplerLocation = -1;
+	GLuint gViewLocation = -1;
 
 	unsigned int m_ShaderIndex = 0;
-	std::array<GLuint, 8> m_Shaders;
+	std::array<CompiledShaderProgram, 8> m_Shaders;
 	std::array<unsigned int, 36> m_indices;
 public:
 	ModelObject()
@@ -57,22 +58,26 @@ public:
 	{
 		m_transform.Rotate(x, y, z);
 	}
-	void AddShader(GLuint shader) {
+	void AddShader(CompiledShaderProgram shader) {
 		m_Shaders[m_ShaderIndex] = shader;
 		m_ShaderIndex++;
 
-		gWLocation = glGetUniformLocation(shader, "gWP");
+		gWLocation = glGetUniformLocation(shader.ShaderProgram, "gWP");
 		if (gWLocation == -1) {
 			printf("Error getting uniform location 'gWP'\n");
 			exit(1);
 		}
 
-		glUniformMatrix4fv(gWLocation, 1, GL_FALSE, glm::value_ptr(GetTransform().GetMatrix()));
+		gViewLocation = glGetUniformLocation(shader.ShaderProgram, "gVP");
+		if (gViewLocation == -1) {
+			printf("Error getting uniform location 'gVP'\n");
+			exit(1);
+		}
 
-		gSamplerLocation = glGetUniformLocation(shader, "gSampler");
+		gSamplerLocation = glGetUniformLocation(shader.ShaderProgram, "gSampler");
 		if (gSamplerLocation == -1) {
-			printf("Error getting uniform location 'gSampler'\n");
-		//	exit(1);
+			printf("Warning, getting uniform location 'gSampler'\n");
+			//	exit(1);
 		}
 	}
 
@@ -143,22 +148,32 @@ public:
 	{
 		m_texture = std::make_unique<Texture>(path, texture);
 
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glUniform1i(gSamplerLocation, 0);
-		
+		if (gSamplerLocation != -1) {
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glUniform1i(gSamplerLocation, 0);
+		}
 	}
 
-	void Update(GLuint gVPLocation, glm::mat4x4 &vp)
+	void Update(glm::mat4x4 &vp)
 	{
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		glUseProgram(m_Shaders[0].ShaderProgram);
 
-		glUniformMatrix4fv(gVPLocation, 1, GL_FALSE, glm::value_ptr(vp));
-		glUniformMatrix4fv(gWLocation, 1, GL_FALSE, glm::value_ptr(GetTransform().GetMatrix()));
-		glUniform1i(gSamplerLocation, 0);
+		if (gViewLocation != -1) {
+			glUniformMatrix4fv(gViewLocation, 1, GL_FALSE, glm::value_ptr(vp));
+		}
+		if (gWLocation != -1) {
+			glUniformMatrix4fv(gWLocation, 1, GL_FALSE, glm::value_ptr(GetTransform().GetMatrix()));
+		}
 
-		glBindTexture(GL_TEXTURE_2D, texture);
+		if (gSamplerLocation != -1) {
+			glUniform1i(gSamplerLocation, 0);
+			glBindTexture(GL_TEXTURE_2D, texture);
+		}
+		
+		
 		
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
