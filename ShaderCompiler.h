@@ -45,7 +45,7 @@ public:
 
         glAttachShader(ShaderProgram, ShaderObj);
     }
-    CompiledShaderProgram& CompileShaders(const std::string &vertexShaderFile, const std::string &fragmentShaderFile)
+    CompiledShaderProgram CompileShaders(const std::string &vertexShaderFile, const std::string &fragmentShaderFile)
     {
         CompiledShaderProgram retShaderProgram;
         GLuint ShaderProgram = -1;

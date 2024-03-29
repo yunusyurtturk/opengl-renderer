@@ -25,6 +25,7 @@
 #include "ShaderCompiler.h"
 #include "CompiledShaderProgram.h"
 #include "Object.h"
+#include "Base/CubeLightSource.h"
 
 typedef int32_t i32;
 typedef uint32_t u32;
@@ -45,46 +46,35 @@ GLuint gWLocation;
 GLuint texture;
 GLuint ShaderProgram;
 
-//Texture texture2("bricks.jpg");
-
-WorldTrans CubeWorldTransform;
 glm::vec3 CameraPos(0.0f, 0.0f, -3.0f);
 glm::vec3 CameraTarget(0.0f, 0.0f, 1.0f);
 glm::vec3 CameraUp(0.0f, 1.0f, 0.0f);
-
 Camera GameCamera(WinWidth, WinHeight, CameraPos, CameraTarget, CameraUp);
 
-
+std::vector<Primitive *> Primitives;
 
 float FOV = 45.0f;
 float NearZ = 1.0f;
 float FarZ = 10.0f;
 float ar = (float)WinWidth / (float)(WinHeight);
 
-
-
-
-static void RenderSceneCB(ModelObject& Cube, ModelObject& Cube2)
+static void RenderSceneCB( vector<Primitive *> &Primitives)
 {
     float YRotationAngle = 1.0f;
     glClear(GL_COLOR_BUFFER_BIT);
-
     GameCamera.OnRender();
 
-    //Cube.GetTransform().SetPosition(0.0f, 0.0f, 2.0f);
-    Cube.GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
-    Cube2.GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
-
-
-    //glm::mat4x4 World = Cube.GetTransform().GetMatrix();
-    //World = glm::identity< glm::mat4x4>();
+    Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
+    Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
 
     glm::mat4x4 View = GameCamera.GetMatrix();
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
     glm::mat4x4 VP = Projection * View;
 
-    Cube.Update(VP);
-    Cube2.Update(VP);
+    for (auto& primitive : Primitives)
+    {
+        primitive->Update(VP);
+    }
 
 }
 
@@ -286,19 +276,28 @@ int main(int ArgCount, char** Args)
     const std::string pVSFileName  = "./Shaders/shader.vs";
     const std::string pFSFileName  = "./Shaders/shader.fs";
     const std::string pFSFileName2 = "./Shaders/shader2.fs";
+    const std::string pLightSourceFragmentShader = "./Shaders/light_source.fs";
+    const std::string pLightSourceVertexShader = "./Shaders/light_source.vs";
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
+    CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceVertexShader, pLightSourceFragmentShader);
 
     ModelObject Cube;
     Cube.AddShader(textureShader);
     Cube.SetTexture("bricks.jpg");
     Cube.SetPosition(0.0, 0.0f, -2.0f);
+    Primitives.push_back(&Cube);
 
     ModelObject Cube2;
     Cube2.AddShader(textureShader2);
     Cube2.SetTexture("container.jpg");
     Cube2.SetPosition(0.0, -1.0f, -4.0f);
+    Primitives.push_back(&Cube2);
 
+    CubeLightSource Light;
+    Light.AddShader(lightShader);
+    Light.SetPosition(0.0, -2.0f, -3.0f);
+    Primitives.push_back(&Light);
 
     while (Running)
     {
@@ -351,7 +350,7 @@ int main(int ArgCount, char** Args)
         glViewport(0, 0, WinWidth, WinHeight);
         glClearColor(bgcolor, bgcolor, bgcolor, 0.f);
 
-        RenderSceneCB(Cube, Cube2);
+        RenderSceneCB(Primitives);
 
         SDL_GL_SwapWindow(Window);
     }

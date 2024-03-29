@@ -31,7 +31,7 @@ private:
     glm::vec3 m_pos;
     glm::vec3 m_target;
     glm::vec3 m_up;
-    float m_speed = 1.0f;
+    float m_speed = 0.25f;
 
     int m_windowWidth;
     int m_windowHeight;

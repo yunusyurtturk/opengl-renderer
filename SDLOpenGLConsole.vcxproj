@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Base\CubeLightSource.h" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="SDLOpenGLConsole.cpp" />
@@ -139,6 +140,7 @@
     <ClCompile Include="WorldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Base\Primitive.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CompiledShaderProgram.h" />
     <ClInclude Include="Object.h" />
@@ -150,6 +152,8 @@
     <ClInclude Include="WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\light_source.fs" />
+    <None Include="Shaders\light_source.vs" />
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
     <None Include="Shaders\shader2.fs" />

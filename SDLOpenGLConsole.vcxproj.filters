@@ -33,6 +33,9 @@
     <ClCompile Include="Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Base\CubeLightSource.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils.h">
@@ -62,6 +65,9 @@
     <ClInclude Include="CompiledShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Base\Primitive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\shader.fs">
@@ -71,5 +77,11 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\shader2.fs" />
+    <None Include="Shaders\light_source.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\light_source.fs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
