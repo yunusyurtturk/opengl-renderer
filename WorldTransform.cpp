@@ -29,6 +29,10 @@ void WorldTrans::Rotate(float x, float y, float z)
     m_rotation.y += y;
     m_rotation.z += z;
 }
+glm::vec3& WorldTrans::GetPosition()
+{
+    return m_pos;
+}
 
 
 glm::mat4x4 WorldTrans::GetMatrix()

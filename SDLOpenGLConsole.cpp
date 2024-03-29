@@ -1,6 +1,10 @@
 // SDLOpenGLConsole.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_opengl3.h"
+
 #include <iostream>
 #include <assert.h>
 #include <stdio.h>
@@ -61,11 +65,10 @@ float ar = (float)WinWidth / (float)(WinHeight);
 static void RenderSceneCB( vector<Primitive *> &Primitives)
 {
     float YRotationAngle = 1.0f;
-    glClear(GL_COLOR_BUFFER_BIT);
     GameCamera.OnRender();
 
-    Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
-    Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
+   Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
+   Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
 
     glm::mat4x4 View = GameCamera.GetMatrix();
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
@@ -253,10 +256,60 @@ int main(int ArgCount, char** Args)
     //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    u32 WindowFlags = SDL_WINDOW_OPENGL;
-    SDL_Window* Window = SDL_CreateWindow("OpenGL Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WinWidth, WinHeight, WindowFlags);
+    const char* glsl_version = "#version 130";
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+//    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+    SDL_WindowFlags WindowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_Window* Window = SDL_CreateWindow("ImGui SDL2 OpenGL Renderer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WinWidth, WinHeight, WindowFlags);
+
     assert(Window);
     SDL_GLContext Context = SDL_GL_CreateContext(Window);
+    SDL_GL_MakeCurrent(Window, Context);
+    SDL_GL_SetSwapInterval(1); // Enable vsync
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoTaskBarIcon = true;
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+    ImGuiStyle& style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL2_InitForOpenGL(Window, Context);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+
+
+
+
+
+
+
+
+
 
     b32 Running = 1;
     b32 FullScreen = 0;
@@ -283,21 +336,27 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceVertexShader, pLightSourceFragmentShader);
 
     ModelObject Cube;
+    Cube.SetName("Cube");
     Cube.AddShader(textureShader);
     Cube.SetTexture("bricks.jpg");
     Cube.SetPosition(0.0, 0.0f, -2.0f);
     Primitives.push_back(&Cube);
 
     ModelObject Cube2;
+    Cube2.SetName("Cube2");
     Cube2.AddShader(textureShader2);
     Cube2.SetTexture("container.jpg");
     Cube2.SetPosition(0.0, -1.0f, -4.0f);
     Primitives.push_back(&Cube2);
 
     CubeLightSource Light;
+    Light.SetName("Light");
     Light.AddShader(lightShader);
     Light.SetPosition(0.0, -2.0f, -3.0f);
     Primitives.push_back(&Light);
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    bool show_demo_window = true;
+    bool show_another_window = false;
 
     while (Running)
     {
@@ -307,6 +366,12 @@ int main(int ArgCount, char** Args)
 
         while (SDL_PollEvent(&Event))
         {
+            ImGui_ImplSDL2_ProcessEvent(&Event);
+            if (Event.type == SDL_QUIT)
+                Running = false;
+            if (Event.type == SDL_WINDOWEVENT && Event.window.event == SDL_WINDOWEVENT_CLOSE && Event.window.windowID == SDL_GetWindowID(Window))
+                Running = false;
+
             if (Event.type == SDL_KEYDOWN)
             {
                 switch (Event.key.keysym.sym)
@@ -347,13 +412,85 @@ int main(int ArgCount, char** Args)
             }
         }
 
-        glViewport(0, 0, WinWidth, WinHeight);
-        glClearColor(bgcolor, bgcolor, bgcolor, 0.f);
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        static float f = 0.0f;
+        static float cx = 0.0f;
+        static float cy = 0.0f;
+        static float cz = 0.0f;
+
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+
+        {
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+            for (auto& primitive : Primitives) {
+                
+                ImGui::SliderFloat((primitive->GetName() + "x").c_str(), &primitive->GetTransform().GetPosition().x, -1.0f, 1.0f);
+                ImGui::SliderFloat((primitive->GetName() + "y").c_str(), &primitive->GetTransform().GetPosition().y, -1.0f, 1.0f);
+                ImGui::SliderFloat((primitive->GetName() + "z").c_str(), &primitive->GetTransform().GetPosition().z, -1.0f, 1.0f);
+
+            }       
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::End();
+        }
+
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
+
+        // Rendering
+        ImGui::Render();
+        glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // Update and Render additional Platform Windows
+        // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+        //  For this specific demo app we could also call SDL_GL_MakeCurrent(window, gl_context) directly)
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+            SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+        }
 
         RenderSceneCB(Primitives);
 
         SDL_GL_SwapWindow(Window);
     }
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_GL_DeleteContext(Context);
+    SDL_DestroyWindow(Window);
+    SDL_Quit();
+
     return 0;
 }
 

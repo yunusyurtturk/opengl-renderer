@@ -18,7 +18,7 @@ public:
     void Rotate(float x, float y, float z);
 
     glm::mat4x4 GetMatrix();
-
+    glm::vec3& GetPosition();
 
 
 private:

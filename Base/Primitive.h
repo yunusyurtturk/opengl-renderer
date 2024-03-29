@@ -17,6 +17,7 @@ protected:
 	WorldTrans m_transform;
 	unsigned int m_ShaderIndex = 0;
 	std::array<CompiledShaderProgram, 8> m_Shaders;
+	std::string m_Name;
 
 	GLuint gWLocation = -1;
 	GLuint gViewLocation = -1;
@@ -35,6 +36,14 @@ public:
 	WorldTrans& GetTransform()
 	{
 		return m_transform;
+	}
+	const std::string& GetName() const
+	{
+		return m_Name;
+	}
+	void SetName(const std::string &name)
+	{
+		m_Name = name;
 	}
 	void SetPosition(float x, float y, float z)
 	{
