@@ -69,6 +69,7 @@ static void RenderSceneCB( vector<Primitive *> &Primitives)
 
    Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
    Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
+   Primitives[2]->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
 
     glm::mat4x4 View = GameCamera.GetMatrix();
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
@@ -81,39 +82,6 @@ static void RenderSceneCB( vector<Primitive *> &Primitives)
 
 }
 
-static void CreateVertexBuffer()
-{
-    Vertex Vertices[8];
-
-    Vertices[0] = Vertex(0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
-    Vertices[1] = Vertex(-0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
-    Vertices[2] = Vertex(-0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
-    Vertices[3] = Vertex(0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
-    Vertices[4] = Vertex(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
-    Vertices[5] = Vertex(0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
-    Vertices[6] = Vertex(0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
-    Vertices[7] = Vertex(-0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
-
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
-    // color
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-
-    // texture
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-
-}
 
 static void CreateIndexBuffer()
 {
@@ -329,11 +297,20 @@ int main(int ArgCount, char** Args)
     const std::string pVSFileName  = "./Shaders/shader.vs";
     const std::string pFSFileName  = "./Shaders/shader.fs";
     const std::string pFSFileName2 = "./Shaders/shader2.fs";
-    const std::string pLightSourceFragmentShader = "./Shaders/light_source.fs";
-    const std::string pLightSourceVertexShader = "./Shaders/light_source.vs";
+
+    const std::string pLightEffectedFragmentShader = "./Shaders/light_source.fs";
+    const std::string pLightEffectedVertexShader = "./Shaders/light_source.vs";
+
+    const std::string pLightSourceBaseFragmentShader = "./Shaders/light_source_base.fs";
+    const std::string pLightSourceBaseVertexShader = "./Shaders/light_source_base.vs";
+
+    const std::string pBasicDiffuseLightFragmentShader = "./Shaders/basic_lightning.fs";
+    const std::string pBasicDiffuseLightVertexShader = "./Shaders/basic_lightning.vs";
+
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
-    CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceVertexShader, pLightSourceFragmentShader);
+    CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseLightVertexShader, pBasicDiffuseLightFragmentShader);
+    CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
 
     ModelObject Cube;
     Cube.SetName("Cube");
@@ -349,11 +326,24 @@ int main(int ArgCount, char** Args)
     Cube2.SetPosition(0.0, -1.0f, -4.0f);
     Primitives.push_back(&Cube2);
 
+
     CubeLightSource Light;
     Light.SetName("Light");
     Light.AddShader(lightShader);
-    Light.SetPosition(0.0, -2.0f, -3.0f);
+    Light.SetPosition(3.0, -3.0f, -4.0f);
     Primitives.push_back(&Light);
+
+
+    ModelObject Cube3;
+    Cube3.SetName("Cube3");
+    Cube3.AddShader(diffuseShader);
+    Cube3.SetUniform3fv("lightPos", &Light.GetTransform().GetPosition());
+    Cube3.SetUniform3fv("lightColor", &Light.GetLightColorRef());
+    Cube3.SetUniform3fv("objectColor", &Light.GetObjectColorRef());
+
+    Cube3.SetPosition(2.0, -2.0f, -3.0f);
+    Primitives.push_back(&Cube3);
+
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -431,11 +421,20 @@ int main(int ArgCount, char** Args)
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
+            ImGui::Text("Lightning");
+
+            ImGui::ColorEdit3("Light Color", (float*)&Light.GetLightColorRef());
+            ImGui::ColorEdit3("Light Object Color", (float*)&Light.GetObjectColorRef());
+
+            ImGui::SliderFloat((Light.GetName() + "x").c_str(), &Light.GetTransform().GetPosition().x, -10.0f, 10.0f);
+            ImGui::SliderFloat((Light.GetName() + "y").c_str(), &Light.GetTransform().GetPosition().y, -10.0f, 10.0f);
+            ImGui::SliderFloat((Light.GetName() + "z").c_str(), &Light.GetTransform().GetPosition().z, -10.0f, 10.0f);
+
             for (auto& primitive : Primitives) {
                 
-                ImGui::SliderFloat((primitive->GetName() + "x").c_str(), &primitive->GetTransform().GetPosition().x, -1.0f, 1.0f);
-                ImGui::SliderFloat((primitive->GetName() + "y").c_str(), &primitive->GetTransform().GetPosition().y, -1.0f, 1.0f);
-                ImGui::SliderFloat((primitive->GetName() + "z").c_str(), &primitive->GetTransform().GetPosition().z, -1.0f, 1.0f);
+                ImGui::SliderFloat((primitive->GetName() + "x").c_str(), &primitive->GetTransform().GetPosition().x, -10.0f, 10.0f);
+                ImGui::SliderFloat((primitive->GetName() + "y").c_str(), &primitive->GetTransform().GetPosition().y, -10.0f, 10.0f);
+                ImGui::SliderFloat((primitive->GetName() + "z").c_str(), &primitive->GetTransform().GetPosition().z, -10.0f, 10.0f);
 
             }       
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color

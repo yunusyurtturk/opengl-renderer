@@ -131,5 +131,17 @@
     <None Include="Shaders\light_source.fs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\light_source_base.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\basic_lightning.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\basic_lightning.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\light_source_base.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
