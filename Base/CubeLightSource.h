@@ -8,12 +8,14 @@ class CubeLightSource : public Primitive
 private:
 	std::array<unsigned int, 36> m_indices;
 	Vertex Vertices[8];
+
+
 	GLuint VBO = -1;
 	GLuint IBO = -1;
 	GLuint objectColorLocation = -1;
 	GLuint lightColorLocation = -1;
-	glm::vec3 objectColor = glm::vec3(0.0f, 0.5f, 0.5f);
-	glm::vec3 lightColor = glm::vec3(0.0f, 1.0f, 1.0f);
+	glm::vec3 objectColor = glm::vec3(1.0f, 1.5f, 0.5f);
+	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 public:
 	CubeLightSource() : Primitive()
 	{
@@ -21,20 +23,8 @@ public:
 		SetIndexBuffer();
 	}
 	virtual void AddShader(CompiledShaderProgram shader) {
-		m_Shaders[m_ShaderIndex] = shader;
-		m_ShaderIndex++;
 
-		objectColorLocation = glGetUniformLocation(shader.ShaderProgram, "objectColor");
-		if (objectColorLocation == -1) {
-			printf("Error getting uniform location 'objectColor'\n");
-			exit(1);
-		}
-
-		lightColorLocation = glGetUniformLocation(shader.ShaderProgram, "lightColor");
-		if (lightColorLocation == -1) {
-			printf("Error getting uniform location 'lightColor'\n");
-			exit(1);
-		}
+		Primitive::AddShader(shader);
 	}
 	void SetIndexBuffer()
 	{
@@ -60,15 +50,15 @@ public:
 
 	void SetVertices()
 	{
-		Vertices[0] = Vertex(0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f);
-		Vertices[1] = Vertex(-0.5f, 0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f);
-		Vertices[2] = Vertex(-0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertices[3] = Vertex(0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f);
+		Vertices[0] = Vertex(0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f  );
+		Vertices[1] = Vertex(-0.5f, 0.5f, -0.5f, 0.5f, 0.0f, 0.0f);
+		Vertices[2] = Vertex(-0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f );
+		Vertices[3] = Vertex(0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f);
 
-		Vertices[4] = Vertex(-0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertices[5] = Vertex(0.5f, 0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f);
-		Vertices[6] = Vertex(0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertices[7] = Vertex(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
+		Vertices[4] = Vertex(-0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f);
+		Vertices[5] = Vertex(0.5f, 0.5f, -0.5f, 0.5f, 0.0f, 0.0f );
+		Vertices[6] = Vertex(0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.0f );
+		Vertices[7] = Vertex(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.0f);
 
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -81,6 +71,14 @@ public:
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
 
+	}
+	glm::vec3& GetLightColorRef()
+	{
+		return lightColor;
+	}
+	glm::vec3& GetObjectColorRef()
+	{
+		return objectColor;
 	}
 
 	virtual void Update(glm::mat4x4& vp) override

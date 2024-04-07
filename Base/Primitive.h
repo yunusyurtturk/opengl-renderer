@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -7,8 +9,11 @@
 #include <glm/vec3.hpp> 
 #include <glm/vec4.hpp> 
 #include <array>
+#include <unordered_map>
+
 #include "../WorldTransform.h"
 #include "../CompiledShaderProgram.h"
+
 
 class Primitive
 {
@@ -21,6 +26,8 @@ protected:
 
 	GLuint gWLocation = -1;
 	GLuint gViewLocation = -1;
+
+	std::unordered_map<std::string, std::pair<GLuint, void*>> m_UniformLocations;
 
 public:
 	Primitive()
@@ -59,15 +66,34 @@ public:
 
 		gWLocation = glGetUniformLocation(shader.ShaderProgram, "gWP");
 		if (gWLocation == -1) {
-			printf("Error getting uniform location 'gWP'\n");
+			std::cout << "Error getting uniform location 'gWP' in " << shader.FragmentShader << " or " << shader.VertexShader << "\n";
 			exit(1);
 		}
 
 		gViewLocation = glGetUniformLocation(shader.ShaderProgram, "gVP");
 		if (gViewLocation == -1) {
-			printf("Error getting uniform location 'gVP'\n");
+			std::cout << "Error getting uniform location 'gVP' in " << shader.FragmentShader << " or " << shader.VertexShader << "\n";
 			exit(1);
 		}
+	}
+	
+	virtual void SetUniform1f(std::string uniform_name, float val)
+	{
+		GLuint uniform_location = glGetUniformLocation(m_Shaders[m_ShaderIndex].ShaderProgram, uniform_name.c_str());
+		if (uniform_location == -1) {
+			std::cout << "Error getting uniform location " << uniform_name << " in " << m_Shaders[m_ShaderIndex].FragmentShader << " or " << m_Shaders[m_ShaderIndex].VertexShader << "\n";
+			return;
+		}
+		m_UniformLocations[uniform_name] = std::make_pair(uniform_location, &val);
+	}
+	virtual void SetUniform3fv(std::string uniform_name, glm::vec3* vec3)
+	{
+		GLuint uniform_location = glGetUniformLocation(m_Shaders[m_ShaderIndex-1].ShaderProgram, uniform_name.c_str());
+		if (uniform_location == -1) {
+			std::cout << "Error getting uniform location " << uniform_name << " in " << m_Shaders[m_ShaderIndex].FragmentShader << " or " << m_Shaders[m_ShaderIndex].VertexShader << "\n";
+			return;
+		}
+		m_UniformLocations[uniform_name] = std::make_pair(uniform_location, vec3);
 	}
 	virtual void Update(glm::mat4x4& vp)
 	{
@@ -79,6 +105,12 @@ public:
 		}
 		if (gWLocation != -1) {
 			glUniformMatrix4fv(gWLocation, 1, GL_FALSE, glm::value_ptr(GetTransform().GetMatrix()));
+		}
+
+
+
+		for (auto& uniform : m_UniformLocations) {
+			glUniform3fv(uniform.second.first, 1, glm::value_ptr(*(glm::vec3 *)(uniform.second.second)));
 		}
 	}
 };
