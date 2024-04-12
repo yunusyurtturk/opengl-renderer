@@ -9,7 +9,9 @@
 #include <glm/vec3.hpp> 
 #include <glm/vec4.hpp> 
 #include <array>
+#include <vector>
 #include <unordered_map>
+#include <memory>
 
 #include "../WorldTransform.h"
 #include "../CompiledShaderProgram.h"
@@ -22,12 +24,15 @@ protected:
 	WorldTrans m_transform;
 	unsigned int m_ShaderIndex = 0;
 	std::array<CompiledShaderProgram, 8> m_Shaders;
+	std::vector<std::unique_ptr<UniformSlot>> uniformElements;
 	std::string m_Name;
 
 	GLuint gWLocation = -1;
 	GLuint gViewLocation = -1;
 
 	std::unordered_map<std::string, std::pair<GLuint, void*>> m_UniformLocations;
+
+
 
 public:
 	Primitive()
@@ -76,24 +81,21 @@ public:
 			exit(1);
 		}
 	}
-	
-	virtual void SetUniform1f(std::string uniform_name, float val)
-	{
-		GLuint uniform_location = glGetUniformLocation(m_Shaders[m_ShaderIndex].ShaderProgram, uniform_name.c_str());
-		if (uniform_location == -1) {
-			std::cout << "Error getting uniform location " << uniform_name << " in " << m_Shaders[m_ShaderIndex].FragmentShader << " or " << m_Shaders[m_ShaderIndex].VertexShader << "\n";
-			return;
+	template<typename T>
+	void SetUniform(std::string uniform_name, T&& val) {
+		
+		using PType = typename std::remove_pointer<T>::type;
+
+		if (m_Shaders[m_ShaderIndex - 1].ShaderProgram != -1) {
+			
+			uniformElements.emplace_back(std::make_unique<UniformElement<PType>>(m_Shaders[m_ShaderIndex - 1].ShaderProgram, uniform_name));
+			if constexpr (std::is_pointer_v<T>) {
+				static_cast<UniformElement<PType>*>(uniformElements.back().get())->bind(val);
+			}
+			else {
+				static_cast<UniformElement<PType>*>(uniformElements.back().get())->bind(&val);
+			}
 		}
-		m_UniformLocations[uniform_name] = std::make_pair(uniform_location, &val);
-	}
-	virtual void SetUniform3fv(std::string uniform_name, glm::vec3* vec3)
-	{
-		GLuint uniform_location = glGetUniformLocation(m_Shaders[m_ShaderIndex-1].ShaderProgram, uniform_name.c_str());
-		if (uniform_location == -1) {
-			std::cout << "Error getting uniform location " << uniform_name << " in " << m_Shaders[m_ShaderIndex].FragmentShader << " or " << m_Shaders[m_ShaderIndex].VertexShader << "\n";
-			return;
-		}
-		m_UniformLocations[uniform_name] = std::make_pair(uniform_location, vec3);
 	}
 	virtual void Update(glm::mat4x4& vp)
 	{
@@ -108,9 +110,8 @@ public:
 		}
 
 
-
-		for (auto& uniform : m_UniformLocations) {
-			glUniform3fv(uniform.second.first, 1, glm::value_ptr(*(glm::vec3 *)(uniform.second.second)));
+		for (auto& uniform : uniformElements) {
+			uniform.get()->Update();
 		}
 	}
 };

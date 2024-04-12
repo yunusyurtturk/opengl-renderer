@@ -16,6 +16,7 @@ private:
 	GLuint lightColorLocation = -1;
 	glm::vec3 objectColor = glm::vec3(1.0f, 1.5f, 0.5f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
 public:
 	CubeLightSource() : Primitive()
 	{
