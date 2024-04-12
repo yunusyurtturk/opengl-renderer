@@ -7,6 +7,7 @@
 
 #include <array>
 #include <memory>
+#include "Models/Basic/Cube.h"
 
 
 class ModelObject : public Primitive
@@ -22,11 +23,13 @@ private:
 	GLuint gSamplerLocation = -1;
 
 	std::array<unsigned int, 36> m_indices;
+
+	Cube model;
 public:
 	ModelObject() : Primitive()
 	{
-		SetVertices();
-		SetIndexBuffer();
+		//SetVertices();
+		//SetIndexBuffer();
 	}
 	virtual void AddShader(CompiledShaderProgram shader) override {
 		Primitive::AddShader(shader);
@@ -102,14 +105,16 @@ public:
 	{
 		Primitive::Update(vp);
 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-		
 		if (gSamplerLocation != -1) {
 			glUniform1i(gSamplerLocation, 0);
 			glBindTexture(GL_TEXTURE_2D, texture);
 		}
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+		model.Draw();
+
+		
+		
+		
 	}
 private:
 

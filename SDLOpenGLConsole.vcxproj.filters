@@ -116,6 +116,18 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Base\Uniform\UniformSlot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\Uniform\UniformElement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\Basic\Cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\shader.fs">
@@ -134,10 +146,10 @@
     <None Include="Shaders\light_source_base.fs">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\basic_lightning.vs">
+    <None Include="Shaders\diffuse_material.vs">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\basic_lightning.fs">
+    <None Include="Shaders\diffuse_material.fs">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\light_source_base.vs">

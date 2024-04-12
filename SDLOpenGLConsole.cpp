@@ -304,13 +304,19 @@ int main(int ArgCount, char** Args)
     const std::string pLightSourceBaseFragmentShader = "./Shaders/light_source_base.fs";
     const std::string pLightSourceBaseVertexShader = "./Shaders/light_source_base.vs";
 
-    const std::string pBasicDiffuseLightFragmentShader = "./Shaders/basic_lightning.fs";
-    const std::string pBasicDiffuseLightVertexShader = "./Shaders/basic_lightning.vs";
+    const std::string pBasicDiffuseMaterialFragmentShader = "./Shaders/diffuse_material.fs";
+    const std::string pBasicDiffuseMaterialVertexShader = "./Shaders/diffuse_material.vs";
 
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
-    CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseLightVertexShader, pBasicDiffuseLightFragmentShader);
+    CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pBasicDiffuseMaterialFragmentShader);
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
+
+    CubeLightSource Light;
+    Light.SetName("LightSource");
+    Light.AddShader(lightShader);
+    Light.SetPosition(3.0, 3.0f, -4.0f);
+    Primitives.push_back(&Light);
 
     ModelObject Cube;
     Cube.SetName("Cube");
@@ -323,23 +329,15 @@ int main(int ArgCount, char** Args)
     Cube2.SetName("Cube2");
     Cube2.AddShader(textureShader2);
     Cube2.SetTexture("container.jpg");
-    Cube2.SetPosition(0.0, -1.0f, -4.0f);
+    Cube2.SetPosition(0.0, -1.0f, -2.0f);
     Primitives.push_back(&Cube2);
 
-
-    CubeLightSource Light;
-    Light.SetName("Light");
-    Light.AddShader(lightShader);
-    Light.SetPosition(3.0, -3.0f, -4.0f);
-    Primitives.push_back(&Light);
-
-
     ModelObject Cube3;
-    Cube3.SetName("Cube3");
+    Cube3.SetName("CubeDiffuse");
     Cube3.AddShader(diffuseShader);
-    Cube3.SetUniform3fv("lightPos", &Light.GetTransform().GetPosition());
-    Cube3.SetUniform3fv("lightColor", &Light.GetLightColorRef());
-    Cube3.SetUniform3fv("objectColor", &Light.GetObjectColorRef());
+    Cube3.SetUniform("lightPos", &Light.GetTransform().GetPosition());
+    Cube3.SetUniform("lightColor", &Light.GetLightColorRef());
+    Cube3.SetUniform("objectColor", &Light.GetObjectColorRef());
 
     Cube3.SetPosition(2.0, -2.0f, -3.0f);
     Primitives.push_back(&Cube3);
@@ -425,10 +423,6 @@ int main(int ArgCount, char** Args)
 
             ImGui::ColorEdit3("Light Color", (float*)&Light.GetLightColorRef());
             ImGui::ColorEdit3("Light Object Color", (float*)&Light.GetObjectColorRef());
-
-            ImGui::SliderFloat((Light.GetName() + "x").c_str(), &Light.GetTransform().GetPosition().x, -10.0f, 10.0f);
-            ImGui::SliderFloat((Light.GetName() + "y").c_str(), &Light.GetTransform().GetPosition().y, -10.0f, 10.0f);
-            ImGui::SliderFloat((Light.GetName() + "z").c_str(), &Light.GetTransform().GetPosition().z, -10.0f, 10.0f);
 
             for (auto& primitive : Primitives) {
                 
