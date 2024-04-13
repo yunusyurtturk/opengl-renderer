@@ -14,15 +14,15 @@ private:
 		std::vector<Vertex>& Vertices = GetVertex();
 		Vertices.resize(8);
 
-		Vertices[0] = Vertex(0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f);
-		Vertices[1] = Vertex(-0.5f, 0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f);
-		Vertices[2] = Vertex(-0.5f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertices[3] = Vertex(0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f);
-
-		Vertices[4] = Vertex(-0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertices[5] = Vertex(0.5f, 0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f);
-		Vertices[6] = Vertex(0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
-		Vertices[7] = Vertex(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
+		Vertices[0] = Vertex(0.5f, 0.5f, 0.5f,    0.5f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+		Vertices[1] = Vertex(-0.5f, 0.5f, -0.5f,  0.5f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+		Vertices[2] = Vertex(-0.5f, 0.5f, 0.5f,   0.5f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+		Vertices[3] = Vertex(0.5f, -0.5f, -0.5f,  0.5f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+																	 				 
+		Vertices[4] = Vertex(-0.5f, -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+		Vertices[5] = Vertex(0.5f, 0.5f, -0.5f,   0.5f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+		Vertices[6] = Vertex(0.5f, -0.5f, 0.5f,   0.5f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+		Vertices[7] = Vertex(-0.5f, -0.5f, 0.5f,  0.5f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
 
 		int sizeofVertex = sizeof(Vertex);
 		int sizeofArray = sizeof(Vertices);
@@ -40,9 +40,13 @@ private:
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
 
-		// texture
+		// normal
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
+
+		// texture
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
 	}
 	void initIndex()
 	{

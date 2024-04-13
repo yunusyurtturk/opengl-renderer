@@ -15,25 +15,22 @@
 
 #include "../WorldTransform.h"
 #include "../CompiledShaderProgram.h"
+#include "../Mesh/Model.h"
 
 
 class Primitive
 {
 protected:
 	GLuint VAO = -1;
-	WorldTrans m_transform;
+	GLuint gWLocation = -1;
+	GLuint gViewLocation = -1;
 	unsigned int m_ShaderIndex = 0;
+	WorldTrans m_transform;
 	std::array<CompiledShaderProgram, 8> m_Shaders;
 	std::vector<std::unique_ptr<UniformSlot>> uniformElements;
 	std::string m_Name;
 
-	GLuint gWLocation = -1;
-	GLuint gViewLocation = -1;
-
-	std::unordered_map<std::string, std::pair<GLuint, void*>> m_UniformLocations;
-
-
-
+	std::unique_ptr<Model> model;
 public:
 	Primitive()
 	{
@@ -42,7 +39,6 @@ public:
 
 		m_transform.SetPosition(0.0f, 0.0f, 2.0f);
 		m_transform.SetRotation(0.0f, 0.0f, 0.0f);
-
 	}
 
 	WorldTrans& GetTransform()
@@ -97,6 +93,10 @@ public:
 			}
 		}
 	}
+	void SetModel(std::unique_ptr<Model> p_model)
+	{
+		model = std::move(p_model);
+	}
 	virtual void Update(glm::mat4x4& vp)
 	{
 		glBindVertexArray(VAO);
@@ -113,5 +113,8 @@ public:
 		for (auto& uniform : uniformElements) {
 			uniform.get()->Update();
 		}
+
+		if (model)
+			model->Draw();
 	}
 };

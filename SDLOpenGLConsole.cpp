@@ -1,5 +1,3 @@
-// SDLOpenGLConsole.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -10,15 +8,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-//#include <corecrt_math.h>
+#include <memory>
 
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 
 
-#include <glm/vec3.hpp> // glm::vec3
-#include <glm/vec4.hpp> // glm::vec4
+#include <glm/vec3.hpp> 
+#include <glm/vec4.hpp> 
 #include <glm/matrix.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -67,9 +65,9 @@ static void RenderSceneCB( vector<Primitive *> &Primitives)
     float YRotationAngle = 1.0f;
     GameCamera.OnRender();
 
-   Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
-   Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
-   Primitives[2]->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
+    Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
+    Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
+    Primitives[2]->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
 
     glm::mat4x4 View = GameCamera.GetMatrix();
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
@@ -79,134 +77,7 @@ static void RenderSceneCB( vector<Primitive *> &Primitives)
     {
         primitive->Update(VP);
     }
-
 }
-
-
-static void CreateIndexBuffer()
-{
-    unsigned int Indices[] = {
-                              0, 1, 2,
-                              1, 3, 4,
-                              5, 6, 3,
-                              7, 3, 6,
-                              2, 4, 7,
-                              0, 7, 6,
-                              0, 5, 1,
-                              1, 5, 3,
-                              5, 0, 6,
-                              7, 4, 3,
-                              2, 1, 4,
-                              0, 2, 7
-    };
-
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-
-}
-#if 0
-const char* pVSFileName = "shader.vs";
-const char* pFSFileName = "shader.fs";
-
-static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
-{
-    GLuint ShaderObj = glCreateShader(ShaderType);
-
-    if (ShaderObj == 0) {
-        fprintf(stderr, "Error creating shader type %d\n", ShaderType);
-        exit(0);
-    }
-
-    const GLchar* p[1];
-    p[0] = pShaderText;
-
-    GLint Lengths[1];
-    Lengths[0] = (GLint)strlen(pShaderText);
-
-    glShaderSource(ShaderObj, 1, p, Lengths);
-
-    glCompileShader(ShaderObj);
-
-    GLint success;
-    glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
-
-    if (!success) {
-        GLchar InfoLog[1024];
-        glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
-        fprintf(stderr, "Error compiling shader type %d: '%s'\n", ShaderType, InfoLog);
-        exit(1);
-    }
-
-    glAttachShader(ShaderProgram, ShaderObj);
-}
-
-static void CompileShaders()
-{
-    ShaderProgram = glCreateProgram();
-    std::string vs, fs;
-
-    if (ShaderProgram == 0) {
-        printf("HATA");
-        exit(1);
-    }
-
-    if (!ReadFile(pVSFileName, vs)) {
-        exit(1);
-    }
-
-    AddShader(ShaderProgram, vs.c_str(), GL_VERTEX_SHADER);
-
-    if (!ReadFile(pFSFileName, fs)) {
-        exit(1);
-    }
-    AddShader(ShaderProgram, fs.c_str(), GL_FRAGMENT_SHADER);
-    if (!ReadFile(pFSFileName, fs)) {
-        exit(1);
-    }
-
-    GLint Success = 0;
-    GLchar ErrorLog[1024] = { 0 };
-
-    glLinkProgram(ShaderProgram);
-    glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
-    if (Success == 0) {
-        glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
-        fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
-        exit(1);
-    }
-
-    gVPLocation = glGetUniformLocation(ShaderProgram, "gVP");
-    if (gVPLocation == -1) {
-        printf("Error getting uniform location 'gVP'\n");
-        exit(1);
-    }
-
-    gWLocation = glGetUniformLocation(ShaderProgram, "gW");
-    if (gWLocation == -1) {
-        printf("Error getting uniform location 'gW'\n");
-       // exit(1);
-    }
-
-    gSamplerLocation = glGetUniformLocation(ShaderProgram, "gSampler");
-    if (gSamplerLocation == -1) {
-        printf("Error getting uniform location 'gSampler'\n");
-       //   exit(1);
-    }
-
-
-    glValidateProgram(ShaderProgram);
-    glGetProgramiv(ShaderProgram, GL_VALIDATE_STATUS, &Success);
-
-    if (!Success) {
-        glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
-        fprintf(stderr, "Invalid shader program: '%s'\n", ErrorLog);
-        exit(1);
-    }
-
-    glUseProgram(ShaderProgram);
-}
-#endif 
 
 int main(int ArgCount, char** Args)
 {
@@ -269,21 +140,9 @@ int main(int ArgCount, char** Args)
     ImGui_ImplSDL2_InitForOpenGL(Window, Context);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-
-
-
-
-
-
-
-
-
-
     b32 Running = 1;
     b32 FullScreen = 0;
-
     GLclampf bgcolor = 0.5f;
-
     // Must be done after glut is initialized!
     GLenum res = glewInit();
     if (res != GLEW_OK) {
@@ -297,13 +156,10 @@ int main(int ArgCount, char** Args)
     const std::string pVSFileName  = "./Shaders/shader.vs";
     const std::string pFSFileName  = "./Shaders/shader.fs";
     const std::string pFSFileName2 = "./Shaders/shader2.fs";
-
     const std::string pLightEffectedFragmentShader = "./Shaders/light_source.fs";
     const std::string pLightEffectedVertexShader = "./Shaders/light_source.vs";
-
     const std::string pLightSourceBaseFragmentShader = "./Shaders/light_source_base.fs";
     const std::string pLightSourceBaseVertexShader = "./Shaders/light_source_base.vs";
-
     const std::string pBasicDiffuseMaterialFragmentShader = "./Shaders/diffuse_material.fs";
     const std::string pBasicDiffuseMaterialVertexShader = "./Shaders/diffuse_material.vs";
 
@@ -312,35 +168,38 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pBasicDiffuseMaterialFragmentShader);
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
 
-    CubeLightSource Light;
-    Light.SetName("LightSource");
-    Light.AddShader(lightShader);
-    Light.SetPosition(3.0, 3.0f, -4.0f);
-    Primitives.push_back(&Light);
+    CubeLightSource light;
+    light.SetName("LightSource");
+    light.AddShader(lightShader);
+    light.SetPosition(3.0, 3.0f, -4.0f);
+    Primitives.push_back(&light);
 
-    ModelObject Cube;
-    Cube.SetName("Cube");
-    Cube.AddShader(textureShader);
-    Cube.SetTexture("bricks.jpg");
-    Cube.SetPosition(0.0, 0.0f, -2.0f);
-    Primitives.push_back(&Cube);
+    ModelObject cube;
+    cube.SetName("Cube");
+    cube.AddShader(textureShader);
+    cube.SetModel(std::make_unique<Cube>());
+    cube.SetTexture("bricks.jpg");
+    cube.SetPosition(0.0, 0.0f, -2.0f);
+    Primitives.push_back(&cube);
 
-    ModelObject Cube2;
-    Cube2.SetName("Cube2");
-    Cube2.AddShader(textureShader2);
-    Cube2.SetTexture("container.jpg");
-    Cube2.SetPosition(0.0, -1.0f, -2.0f);
-    Primitives.push_back(&Cube2);
+    ModelObject cube2;
+    cube2.SetName("Cube2");
+    cube2.SetModel(std::make_unique<Cube>());
+    cube2.AddShader(textureShader2);
+    cube2.SetTexture("container.jpg");
+    cube2.SetPosition(0.0, -1.0f, -2.0f);
+    Primitives.push_back(&cube2);
 
-    ModelObject Cube3;
-    Cube3.SetName("CubeDiffuse");
-    Cube3.AddShader(diffuseShader);
-    Cube3.SetUniform("lightPos", &Light.GetTransform().GetPosition());
-    Cube3.SetUniform("lightColor", &Light.GetLightColorRef());
-    Cube3.SetUniform("objectColor", &Light.GetObjectColorRef());
+    ModelObject cube3;
+    cube3.SetName("CubeDiffuse");
+    cube3.SetModel(std::make_unique<Cube>());
+    cube3.AddShader(diffuseShader);
+    cube3.SetUniform("lightPos", &light.GetTransform().GetPosition());
+    cube3.SetUniform("lightColor", &light.GetLightColorRef());
+    cube3.SetUniform("objectColor", &light.GetObjectColorRef());
 
-    Cube3.SetPosition(2.0, -2.0f, -3.0f);
-    Primitives.push_back(&Cube3);
+    cube3.SetPosition(2.0, -2.0f, -3.0f);
+    Primitives.push_back(&cube3);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool show_demo_window = true;
@@ -403,10 +262,6 @@ int main(int ArgCount, char** Args)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
-        static float f = 0.0f;
-        static float cx = 0.0f;
-        static float cy = 0.0f;
-        static float cz = 0.0f;
 
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
@@ -421,8 +276,8 @@ int main(int ArgCount, char** Args)
             ImGui::Checkbox("Another Window", &show_another_window);
             ImGui::Text("Lightning");
 
-            ImGui::ColorEdit3("Light Color", (float*)&Light.GetLightColorRef());
-            ImGui::ColorEdit3("Light Object Color", (float*)&Light.GetObjectColorRef());
+            ImGui::ColorEdit3("Light Color", (float*)&light.GetLightColorRef());
+            ImGui::ColorEdit3("Light Object Color", (float*)&light.GetObjectColorRef());
 
             for (auto& primitive : Primitives) {
                 
@@ -486,14 +341,3 @@ int main(int ArgCount, char** Args)
 
     return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
