@@ -122,10 +122,10 @@
     <ClInclude Include="Base\Uniform\UniformElement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models\Model.h">
+    <ClInclude Include="Mesh\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Models\Basic\Cube.h">
+    <ClInclude Include="Mesh\Basic\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
