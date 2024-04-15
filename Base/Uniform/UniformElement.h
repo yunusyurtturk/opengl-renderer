@@ -36,7 +36,7 @@ public:
             glUniform2fv(uniformLocation, 1, glm::value_ptr(pBindedValue));
         }
         else if constexpr (std::is_same_v<T, glm::vec3>) {
-            glUniform3fv(uniformLocation, 1, glm::value_ptr(*pBindedValue));
+            glUniform3fv(uniformLocation, 1, (GLfloat *)pBindedValue);
         }
         else if constexpr (std::is_same_v<T, glm::vec4>) {
             glUniform4fv(uniformLocation, 1, glm::value_ptr(pBindedValue));
