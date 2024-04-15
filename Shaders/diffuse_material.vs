@@ -17,7 +17,7 @@ out vec3 Normal;
 void main()
 {
     FragPos = vec3(gWP * vec4(aPosition, 1.0));
-    Normal = aNormal;  
-
-    gl_Position =  gVP * vec4(FragPos, 1.0);
+    Normal = mat3(transpose(inverse(gWP))) * aNormal;  
+    
+    gl_Position = gVP * vec4(FragPos, 1.0);
 }
