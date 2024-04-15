@@ -50,7 +50,7 @@ GLuint texture;
 GLuint ShaderProgram;
 
 glm::vec3 CameraPos(0.0f, 0.0f,9.0f);
-glm::vec3 CameraTarget(1.0f, 1.0f, 1.0f);
+glm::vec3 CameraTarget(0.0f, 0.0f, 1.0f);
 glm::vec3 CameraUp(0.0f, 1.0f, 0.0f);
 Camera GameCamera(WinWidth, WinHeight, CameraPos, CameraTarget, CameraUp);
 
@@ -58,7 +58,7 @@ std::vector<Primitive *> Primitives;
 
 float FOV = 45.0f;
 float NearZ = 1.0f;
-float FarZ = 10.0f;
+float FarZ = 40.0f;
 float ar = (float)WinWidth / (float)(WinHeight);
 
 static void RenderSceneCB( vector<Primitive *> &Primitives)
@@ -200,7 +200,7 @@ int main(int ArgCount, char** Args)
     cube3.SetName("CubeDiffuse");
     cube3.SetModel(std::make_unique<Cube2>());
     cube3.AddShader(diffuseShader);
-    cube3.SetPosition(-1.0f, 0.0f, 0.0f);
+    cube3.SetPosition(-1.0f, 0.0f, 1.0f);
     cube3.SetUniform("viewPos", &GameCamera.GetPosition());
     cube3.SetUniform("lightPos", &light.GetTransform().GetPosition());
     cube3.SetUniform("lightColor", &light.GetLightColorRef());
