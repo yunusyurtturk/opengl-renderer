@@ -163,6 +163,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Mesh\Basic\Cube.h" />
+    <ClInclude Include="Mesh\Basic\Cube2.h" />
     <ClInclude Include="Mesh\Model.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ShaderCompiler.h" />

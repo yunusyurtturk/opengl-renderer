@@ -77,6 +77,11 @@ void Camera::SetPosition(float x, float y, float z)
     m_pos.y = y;
     m_pos.z = z;
 }
+const glm::vec3& Camera::GetPosition() const
+{
+    return m_pos;
+}
+
 void Camera::OnMouse(int x, int y)
 {
     Update();
@@ -163,6 +168,7 @@ void Camera::OnKeyboard(unsigned char Key)
 
 void Camera::Update()
 {
+#if 0
     glm::vec3 Yaxis(0.0f, 1.0f, 0.0f);
     glm::mat4 rotM = glm::mat4(1.0f);
 
@@ -183,6 +189,8 @@ void Camera::Update()
     m_target = glm::normalize(m_target);
 
     m_up = glm::normalize(glm::cross(m_target, U)); 
+#endif
+
 }
 
 void Camera::OnRender()

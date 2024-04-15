@@ -16,6 +16,7 @@ public:
     Camera(int WindowWidth, int WindowHeight, const glm::vec3& Pos, const glm::vec3& Target, const glm::vec3& Up);
 
     void SetPosition(float x, float y, float z);
+    const glm::vec3& GetPosition() const;
     void OnMouse(int deltaX, int deltaY);
     void OnKeyboard(unsigned char key);
     void OnRender();

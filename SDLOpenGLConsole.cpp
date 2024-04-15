@@ -28,6 +28,7 @@
 #include "CompiledShaderProgram.h"
 #include "Object.h"
 #include "Base/CubeLightSource.h"
+#include "Mesh/Basic/Cube2.h"
 
 typedef int32_t i32;
 typedef uint32_t u32;
@@ -48,8 +49,8 @@ GLuint gWLocation;
 GLuint texture;
 GLuint ShaderProgram;
 
-glm::vec3 CameraPos(0.0f, 0.0f, -3.0f);
-glm::vec3 CameraTarget(0.0f, 0.0f, 1.0f);
+glm::vec3 CameraPos(0.0f, 0.0f,9.0f);
+glm::vec3 CameraTarget(1.0f, 1.0f, 1.0f);
 glm::vec3 CameraUp(0.0f, 1.0f, 0.0f);
 Camera GameCamera(WinWidth, WinHeight, CameraPos, CameraTarget, CameraUp);
 
@@ -91,9 +92,11 @@ int main(int ArgCount, char** Args)
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
     }
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24); // Depth buffering
 
     const char* glsl_version = "#version 130";
 //    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
@@ -152,6 +155,8 @@ int main(int ArgCount, char** Args)
     ShaderCompiler shaderCompiler;
 
     glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+
 
     const std::string pVSFileName  = "./Shaders/shader.vs";
     const std::string pFSFileName  = "./Shaders/shader.fs";
@@ -168,10 +173,11 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pBasicDiffuseMaterialFragmentShader);
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
 
+    float ambientStrength = 0.1f;
     CubeLightSource light;
     light.SetName("LightSource");
     light.AddShader(lightShader);
-    light.SetPosition(3.0, 3.0f, -4.0f);
+    light.SetPosition(0.0f, 1.0f, 0.0f);
     Primitives.push_back(&light);
 
     ModelObject cube;
@@ -179,7 +185,7 @@ int main(int ArgCount, char** Args)
     cube.AddShader(textureShader);
     cube.SetModel(std::make_unique<Cube>());
     cube.SetTexture("bricks.jpg");
-    cube.SetPosition(0.0, 0.0f, -2.0f);
+    cube.SetPosition(0.0, -1.0f, 0.0f);
     Primitives.push_back(&cube);
 
     ModelObject cube2;
@@ -187,18 +193,19 @@ int main(int ArgCount, char** Args)
     cube2.SetModel(std::make_unique<Cube>());
     cube2.AddShader(textureShader2);
     cube2.SetTexture("container.jpg");
-    cube2.SetPosition(0.0, -1.0f, -2.0f);
+    cube2.SetPosition(1.0, 0.0f, 0.0f);
     Primitives.push_back(&cube2);
 
     ModelObject cube3;
     cube3.SetName("CubeDiffuse");
-    cube3.SetModel(std::make_unique<Cube>());
+    cube3.SetModel(std::make_unique<Cube2>());
     cube3.AddShader(diffuseShader);
+    cube3.SetPosition(-1.0f, 0.0f, 0.0f);
+    cube3.SetUniform("viewPos", &GameCamera.GetPosition());
     cube3.SetUniform("lightPos", &light.GetTransform().GetPosition());
     cube3.SetUniform("lightColor", &light.GetLightColorRef());
     cube3.SetUniform("objectColor", &light.GetObjectColorRef());
 
-    cube3.SetPosition(2.0, -2.0f, -3.0f);
     Primitives.push_back(&cube3);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -310,7 +317,7 @@ int main(int ArgCount, char** Args)
         ImGui::Render();
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Update and Render additional Platform Windows
