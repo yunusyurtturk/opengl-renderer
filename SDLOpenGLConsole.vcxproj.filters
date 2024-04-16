@@ -158,5 +158,8 @@
     <None Include="Shaders\light_source_base.vs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\material_struct.fs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

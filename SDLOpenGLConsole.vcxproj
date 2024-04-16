@@ -180,6 +180,7 @@
     <None Include="Shaders\light_source.vs" />
     <None Include="Shaders\light_source_base.fs" />
     <None Include="Shaders\light_source_base.vs" />
+    <None Include="Shaders\material_struct.fs" />
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
     <None Include="Shaders\shader2.fs" />

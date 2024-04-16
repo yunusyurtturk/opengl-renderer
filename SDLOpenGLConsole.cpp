@@ -168,12 +168,19 @@ int main(int ArgCount, char** Args)
     const std::string pBasicDiffuseMaterialFragmentShader = "./Shaders/diffuse_material.fs";
     const std::string pBasicDiffuseMaterialVertexShader = "./Shaders/diffuse_material.vs";
 
+    const std::string pMaterialFragmentShader = "./Shaders/material_struct.fs";
+
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
     CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pBasicDiffuseMaterialFragmentShader);
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
+    CompiledShaderProgram materialShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pMaterialFragmentShader);
 
     float ambientStrength = 0.1f;
+    float shininess = 0.1f;
+
+    glm::vec3 materialAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
+
     CubeLightSource light;
     light.SetName("LightSource");
     light.AddShader(lightShader);
@@ -205,8 +212,26 @@ int main(int ArgCount, char** Args)
     cube3.SetUniform("lightPos", &light.GetTransform().GetPosition());
     cube3.SetUniform("lightColor", &light.GetLightColorRef());
     cube3.SetUniform("objectColor", &light.GetObjectColorRef());
-
     Primitives.push_back(&cube3);
+
+    ModelObject cube4;
+    cube4.SetName("CubeMaterial");
+    cube4.SetModel(std::make_unique<Cube2>());
+    cube4.AddShader(materialShader);
+    cube4.SetPosition(-2.0f, 0.0f, 1.0f);
+    cube4.SetUniform("viewPos", &GameCamera.GetPosition());
+    //
+    cube4.SetUniform("light.position", &light.GetTransform().GetPosition());
+    cube4.SetUniform("light.ambient", &light.GetLightColorRef());
+    cube4.SetUniform("light.diffuse", &light.GetObjectColorRef());
+    cube4.SetUniform("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    //
+    cube4.SetUniform("material.shininess", &shininess);
+    cube4.SetUniform("material.ambient", &materialAmbient);
+    cube4.SetUniform("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+    cube4.SetUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+
+    Primitives.push_back(&cube4);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool show_demo_window = true;
@@ -285,6 +310,9 @@ int main(int ArgCount, char** Args)
 
             ImGui::ColorEdit3("Light Color", (float*)&light.GetLightColorRef());
             ImGui::ColorEdit3("Light Object Color", (float*)&light.GetObjectColorRef());
+            ImGui::ColorEdit3("MaterialAmbient", (float*)&materialAmbient);
+
+            ImGui::SliderFloat("Shininess", &shininess, 0.001f, 1.0f);
 
             for (auto& primitive : Primitives) {
                 
