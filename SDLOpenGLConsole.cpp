@@ -69,6 +69,7 @@ static void RenderSceneCB( vector<Primitive *> &Primitives)
     Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
     Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
     Primitives[2]->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
+    Primitives[3]->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
 
     glm::mat4x4 View = GameCamera.GetMatrix();
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
@@ -154,7 +155,6 @@ int main(int ArgCount, char** Args)
     }
     ShaderCompiler shaderCompiler;
 
-    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
 
