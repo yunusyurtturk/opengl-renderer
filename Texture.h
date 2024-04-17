@@ -17,9 +17,9 @@ private:
 	unsigned char* data;
 	GLuint texture;
 	GLenum format;
-
+	unsigned int textureIndex;
 public:
-	Texture(std::string texturePath, GLuint &outTexture)
+	Texture(std::string texturePath, GLuint &outTexture, unsigned int texture_index = 0) : textureIndex(texture_index)
 	{
 		data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
 		if (!data) {
@@ -34,6 +34,7 @@ public:
 			format = GL_RGBA;
 		
 		glGenTextures(1, &texture);
+		glActiveTexture(GL_TEXTURE0 + textureIndex);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -50,6 +51,10 @@ public:
 	GLuint& getTexture()
 	{
 		return texture;
+	}
+	unsigned int& getTextureIndex()
+	{
+		return textureIndex;
 	}
 
 };

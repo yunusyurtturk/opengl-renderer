@@ -13,14 +13,16 @@
 class ModelObject : public Primitive
 {
 private:
-	GLuint texture = -1;
+	std::vector<GLuint> texture;
 	GLuint gSamplerLocation = -1;
-	std::unique_ptr<Texture> m_texture;
+	std::vector<std::shared_ptr<Texture>> m_textures;
+	unsigned int m_textureIndex = 0;
 	
 public:
 	ModelObject() : Primitive()
 	{
-		
+		texture.resize(8);
+		m_textures.resize(8);
 	}
 	virtual void AddShader(CompiledShaderProgram shader) override {
 		Primitive::AddShader(shader);
@@ -31,9 +33,10 @@ public:
 
 	void SetTexture(std::string sampler_name, std::string path)
 	{
-		m_texture = std::make_unique<Texture>(path, texture);
-
-		SetUniform(sampler_name, &m_texture);
+		texture.push_back(0);
+		m_textures.emplace_back(std::make_shared<Texture>(path, texture.back(), m_textureIndex));
+		SetUniform(sampler_name, &m_textures.back());
+		m_textureIndex++;
 
 	//	if (gSamplerLocation == -1) {
 	//		gSamplerLocation = glGetUniformLocation(m_Shaders[0].ShaderProgram, sampler_name.c_str());

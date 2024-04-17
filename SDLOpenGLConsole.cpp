@@ -182,7 +182,7 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram lightmapShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pMaterialLightmapFragmentShader);
 
     float ambientStrength = 0.1f;
-    float shininess = 0.1f;
+    float shininess = 64.f;
 
     glm::vec3 materialAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 
@@ -242,17 +242,17 @@ int main(int ArgCount, char** Args)
     cube5.SetModel(std::make_unique<Cube2>());
     cube5.AddShader(lightmapShader);
     cube5.SetPosition(-2.0f, -2.0f, 1.0f);
-    cube5.SetTexture("material.diffuse", "./Textures/container2.png");
     cube5.SetUniform("viewPos", &GameCamera.GetPosition());
-    cube5.SetUniform("material.diffuse", 0);
-    //
+
+    cube5.SetTexture("material.diffuse", "./Textures/container2.png");
+    cube5.SetTexture("material.specular", "./Textures/container2_specular.png");
+    cube5.SetUniform("material.shininess", &shininess);
     cube5.SetUniform("light.position", &light.GetTransform().GetPosition());
-    cube5.SetUniform("light.ambient", &light.GetLightColorRef());
-    cube5.SetUniform("light.diffuse", &light.GetObjectColorRef());
+    cube5.SetUniform("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+    cube5.SetUniform("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
     cube5.SetUniform("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     //
-    cube5.SetUniform("material.shininess", &shininess);
-    cube5.SetUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    
     Primitives.push_back(&cube5);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
