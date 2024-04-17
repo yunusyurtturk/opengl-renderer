@@ -180,10 +180,16 @@
     <None Include="Shaders\light_source.vs" />
     <None Include="Shaders\light_source_base.fs" />
     <None Include="Shaders\light_source_base.vs" />
+    <None Include="Shaders\material_lightmap.fs" />
+    <None Include="Shaders\material_lightmap.vs" />
     <None Include="Shaders\material_struct.fs" />
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
     <None Include="Shaders\shader2.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\container2.png" />
+    <Image Include="Textures\container2_specular.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

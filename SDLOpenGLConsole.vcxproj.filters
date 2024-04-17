@@ -161,5 +161,19 @@
     <None Include="Shaders\material_struct.fs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\material_lightmap.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\material_lightmap.vs">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\container2_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

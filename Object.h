@@ -25,32 +25,33 @@ public:
 	virtual void AddShader(CompiledShaderProgram shader) override {
 		Primitive::AddShader(shader);
 
-		gSamplerLocation = glGetUniformLocation(shader.ShaderProgram, "gSampler");
-		if (gSamplerLocation == -1) {
-			printf("Warning, getting uniform location 'gSampler'\n");
-			//	exit(1);
-		}
+		
 	}
 
 
-	void SetTexture(std::string path)
+	void SetTexture(std::string sampler_name, std::string path)
 	{
 		m_texture = std::make_unique<Texture>(path, texture);
 
-		if (gSamplerLocation != -1) {
-			glBindTexture(GL_TEXTURE_2D, texture);
-			glUniform1i(gSamplerLocation, 0);
-		}
+		SetUniform(sampler_name, &m_texture);
+
+	//	if (gSamplerLocation == -1) {
+	//		gSamplerLocation = glGetUniformLocation(m_Shaders[0].ShaderProgram, sampler_name.c_str());
+	//	}
+	//	
+	//	if (gSamplerLocation == -1) {
+	//		std::cout << "Warning, uniform sampler " << sampler_name << "not found \n";
+	//		return;
+	//	}
+	//
+	//	
+	//	glBindTexture(GL_TEXTURE_2D, texture);
+	//	glUniform1i(gSamplerLocation, 0);
 	}
 
 	virtual void Update(glm::mat4x4 &vp) override
 	{
 		Primitive::Update(vp);
-
-		if (gSamplerLocation != -1) {
-			glUniform1i(gSamplerLocation, 0);
-			glBindTexture(GL_TEXTURE_2D, texture);
-		}
 	}
 private:
 

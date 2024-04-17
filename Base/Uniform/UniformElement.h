@@ -6,6 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "UniformSlot.h"
 
+class Texture;
+
 template<typename T>
 class UniformElement : public UniformSlot {
 private:
@@ -40,6 +42,16 @@ public:
         }
         else if constexpr (std::is_same_v<T, glm::vec4>) {
             glUniform4fv(uniformLocation, 1, glm::value_ptr(pBindedValue));
+        }
+        else if constexpr (std::is_same_v<T, Texture>) {
+
+            glBindTexture(GL_TEXTURE_2D, pBindedValue->getTexture());
+            glUniform1i(uniformLocation, 0);
+        }
+        else if constexpr (std::is_same_v<T, std::unique_ptr<Texture>>) {
+
+            glBindTexture(GL_TEXTURE_2D, pBindedValue->get()->getTexture());
+            glUniform1i(uniformLocation, 0);
         }
     }
 

@@ -109,7 +109,6 @@ public:
 			glUniformMatrix4fv(gWLocation, 1, GL_FALSE, glm::value_ptr(GetTransform().GetMatrix()));
 		}
 
-
 		for (auto& uniform : uniformElements) {
 			uniform.get()->Update();
 		}

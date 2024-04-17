@@ -170,11 +170,16 @@ int main(int ArgCount, char** Args)
 
     const std::string pMaterialFragmentShader = "./Shaders/material_struct.fs";
 
+
+    const std::string pMaterialLightmapVertexShader = "./Shaders/material_lightmap.vs";
+    const std::string pMaterialLightmapFragmentShader = "./Shaders/material_lightmap.fs";
+
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
     CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pBasicDiffuseMaterialFragmentShader);
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
     CompiledShaderProgram materialShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pMaterialFragmentShader);
+    CompiledShaderProgram lightmapShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pMaterialLightmapFragmentShader);
 
     float ambientStrength = 0.1f;
     float shininess = 0.1f;
@@ -191,15 +196,15 @@ int main(int ArgCount, char** Args)
     cube.SetName("Cube");
     cube.AddShader(textureShader);
     cube.SetModel(std::make_unique<Cube>());
-    cube.SetTexture("bricks.jpg");
+    cube.SetTexture("gSampler", "bricks.jpg");
     cube.SetPosition(0.0, -1.0f, 0.0f);
     Primitives.push_back(&cube);
 
     ModelObject cube2;
     cube2.SetName("Cube2");
+    cube2.AddShader(textureShader);
     cube2.SetModel(std::make_unique<Cube>());
-    cube2.AddShader(textureShader2);
-    cube2.SetTexture("container.jpg");
+    cube2.SetTexture("gSampler", "container.jpg");
     cube2.SetPosition(1.0, 0.0f, 0.0f);
     Primitives.push_back(&cube2);
 
@@ -230,8 +235,25 @@ int main(int ArgCount, char** Args)
     cube4.SetUniform("material.ambient", &materialAmbient);
     cube4.SetUniform("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
     cube4.SetUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-
     Primitives.push_back(&cube4);
+
+    ModelObject cube5;
+    cube5.SetName("LightMapCube");
+    cube5.SetModel(std::make_unique<Cube2>());
+    cube5.AddShader(lightmapShader);
+    cube5.SetPosition(-2.0f, -2.0f, 1.0f);
+    cube5.SetTexture("material.diffuse", "./Textures/container2.png");
+    cube5.SetUniform("viewPos", &GameCamera.GetPosition());
+    cube5.SetUniform("material.diffuse", 0);
+    //
+    cube5.SetUniform("light.position", &light.GetTransform().GetPosition());
+    cube5.SetUniform("light.ambient", &light.GetLightColorRef());
+    cube5.SetUniform("light.diffuse", &light.GetObjectColorRef());
+    cube5.SetUniform("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    //
+    cube5.SetUniform("material.shininess", &shininess);
+    cube5.SetUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    Primitives.push_back(&cube5);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool show_demo_window = true;
