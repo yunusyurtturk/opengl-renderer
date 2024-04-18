@@ -237,12 +237,19 @@ int main(int ArgCount, char** Args)
     cube4.SetUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
     Primitives.push_back(&cube4);
 
+    float ambient_strength = 0.1f;
+    float diffuse_strength = 1.0f;
+    float specular_strength = 1.0f;
     ModelObject cube5;
     cube5.SetName("LightMapCube");
     cube5.SetModel(std::make_unique<Cube2>());
     cube5.AddShader(lightmapShader);
     cube5.SetPosition(-2.0f, -2.0f, 1.0f);
     cube5.SetUniform("viewPos", &GameCamera.GetPosition());
+    cube5.SetUniform("strengths.ambient", &ambient_strength);
+    cube5.SetUniform("strengths.diffuse", &diffuse_strength);
+    cube5.SetUniform("strengths.specular", &specular_strength);
+
 
     cube5.SetTexture("material.diffuse", "./Textures/container2.png");
     cube5.SetTexture("material.specular", "./Textures/container2_specular.png");
@@ -334,6 +341,9 @@ int main(int ArgCount, char** Args)
             ImGui::ColorEdit3("Light Object Color", (float*)&light.GetObjectColorRef());
             ImGui::ColorEdit3("MaterialAmbient", (float*)&materialAmbient);
 
+            ImGui::SliderFloat("Ambient Strength", &ambient_strength, 0.0f, 2.0f);
+            ImGui::SliderFloat("Diffuse Strength", &diffuse_strength, 0.0f, 2.0f);
+            ImGui::SliderFloat("Specular Strength", &specular_strength, 0.0f, 2.0f);
             ImGui::SliderFloat("Shininess", &shininess, 0.001f, 1.0f);
 
             for (auto& primitive : Primitives) {
