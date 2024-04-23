@@ -15,13 +15,12 @@
 
 #include "../WorldTransform.h"
 #include "../CompiledShaderProgram.h"
-#include "../Mesh/Model.h"
+#include "../Mesh/Mesh.h"
 
 
 class Primitive
 {
 protected:
-	GLuint VAO = -1;
 	GLuint gWLocation = -1;
 	GLuint gViewLocation = -1;
 	unsigned int m_ShaderIndex = 0;
@@ -30,15 +29,20 @@ protected:
 	std::vector<std::unique_ptr<UniformSlot>> uniformElements;
 	std::string m_Name;
 
-	std::unique_ptr<Model> model;
+	std::vector<std::unique_ptr<Mesh>> meshes;
 public:
 	Primitive()
 	{
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-
 		m_transform.SetPosition(0.0f, 0.0f, 2.0f);
 		m_transform.SetRotation(0.0f, 0.0f, 0.0f);
+	}
+	Primitive(const Primitive& rh)
+	{
+
+	}
+	Primitive(Primitive&& source)
+	{
+
 	}
 
 	WorldTrans& GetTransform()
@@ -93,13 +97,24 @@ public:
 			}
 		}
 	}
-	void SetModel(std::unique_ptr<Model> p_model)
+	void AddMesh(std::unique_ptr<Mesh> p_model)
 	{
-		model = std::move(p_model);
+		meshes.emplace_back(std::move(p_model));
+	}
+	void AddMesh(std::vector<std::unique_ptr<Mesh>>& meshes_vector)
+	{
+		meshes.insert(meshes.end(),
+			std::make_move_iterator(meshes_vector.begin()),
+			std::make_move_iterator(meshes_vector.end()));
+		meshes_vector.clear();
+	}
+	void Setup()
+	{
+		for (auto& mesh : meshes)
+			mesh->Setup();
 	}
 	virtual void Update(glm::mat4x4& vp)
 	{
-		glBindVertexArray(VAO);
 		glUseProgram(m_Shaders[0].ShaderProgram);
 
 		if (gViewLocation != -1) {
@@ -113,7 +128,7 @@ public:
 			uniform.get()->Update();
 		}
 
-		if (model)
-			model->Draw();
+		for (auto& mesh : meshes)
+			mesh->Draw();
 	}
 };

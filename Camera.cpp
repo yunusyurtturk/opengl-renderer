@@ -82,6 +82,11 @@ const glm::vec3& Camera::GetPosition() const
     return m_pos;
 }
 
+const glm::vec3& Camera::GetFront() const
+{
+    return m_target;
+}
+
 void Camera::OnMouse(int x, int y)
 {
     Update();

@@ -6,7 +6,6 @@
 #include <SDL_opengl.h>
 #include <GL/glew.h>
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 class Texture
@@ -14,12 +13,26 @@ class Texture
 private:
 	int width, height, nrChannels;
 	std::string texturePath;
+	std::string typeName;
 	unsigned char* data;
 	GLuint texture;
 	GLenum format;
 	unsigned int textureIndex;
 public:
-	Texture(std::string texturePath, GLuint &outTexture, unsigned int texture_index = 0) : textureIndex(texture_index)
+	~Texture()
+	{
+
+	}
+	Texture(std::string texture_path, std::string type_name = "") : textureIndex(0), texturePath(texture_path), typeName(type_name)
+	{
+		GLuint outTex = -1;
+		Init(texturePath, outTex, textureIndex);
+	}
+	Texture(std::string texturePath, GLuint& outTexture, unsigned int texture_index = 0) : textureIndex(texture_index)
+	{
+		Init(texturePath, outTexture, texture_index);
+	}
+	void Init(std::string texturePath, GLuint& outTexture, unsigned int texture_index)
 	{
 		data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
 		if (!data) {
@@ -32,7 +45,7 @@ public:
 			format = GL_RGB;
 		else if (nrChannels == 4)
 			format = GL_RGBA;
-		
+
 		glGenTextures(1, &texture);
 		glActiveTexture(GL_TEXTURE0 + textureIndex);
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -47,6 +60,12 @@ public:
 
 		outTexture = texture;
 	}
+
+	const std::string& getPath()
+	{
+		return texturePath;
+	}
+	
 
 	GLuint& getTexture()
 	{

@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)imgui;$(ProjectDir)imgui\backends;C:\SDL2-2.26.2\include;E:\Projeler\Cpp\SDLOpenGLConsole\include;E:\Projeler\Cpp\SDLOpenGLConsole\lib\glew-2.1.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL2-2.26.2\lib\x64;E:\Projeler\Cpp\SDLOpenGLConsole\lib\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)vcpkg_installed\x64-windows\include;$(ProjectDir)imgui;$(ProjectDir)imgui\backends;C:\SDL2-2.26.2\include;E:\Projeler\Cpp\SDLOpenGLConsole\include;E:\Projeler\Cpp\SDLOpenGLConsole\lib\glew-2.1.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)vcpkg_installed\x64-windows\bin;$(ProjectDir)vcpkg_installed\x64-windows\lib;C:\SDL2-2.26.2\lib\x64;E:\Projeler\Cpp\SDLOpenGLConsole\lib\glew-2.1.0\lib\Release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Base\CubeLightSource.h" />
+    <ClCompile Include="Base\FileOps\FileOps.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\backends\imgui_impl_sdl2.cpp" />
@@ -148,6 +149,8 @@
     <ClCompile Include="WorldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Base\Asset\AssetLoader.h" />
+    <ClInclude Include="Base\FileOps\FileOps.h" />
     <ClInclude Include="Base\Primitive.h" />
     <ClInclude Include="Base\Uniform\UniformElement.h" />
     <ClInclude Include="Base\Uniform\UniformSlot.h" />
@@ -164,7 +167,8 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="Mesh\Basic\Cube.h" />
     <ClInclude Include="Mesh\Basic\Cube2.h" />
-    <ClInclude Include="Mesh\Model.h" />
+    <ClInclude Include="Mesh\Basic\MeshTemplate.h" />
+    <ClInclude Include="Mesh\Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ShaderCompiler.h" />
     <ClInclude Include="stb_image.h" />
@@ -186,6 +190,7 @@
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
     <None Include="Shaders\shader2.fs" />
+    <None Include="Shaders\shader_solid.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\container2.png" />

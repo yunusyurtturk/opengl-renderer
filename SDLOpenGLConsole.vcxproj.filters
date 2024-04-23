@@ -57,6 +57,9 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Base\FileOps\FileOps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils.h">
@@ -122,13 +125,22 @@
     <ClInclude Include="Base\Uniform\UniformElement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh\Model.h">
+    <ClInclude Include="Mesh\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh\Basic\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh\Basic\Cube2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\FileOps\FileOps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\Asset\AssetLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh\Basic\MeshTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -165,6 +177,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\material_lightmap.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\shader_solid.fs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -24,12 +24,18 @@ public:
 		texture.resize(8);
 		m_textures.resize(8);
 	}
+	ModelObject(const ModelObject& rh)
+	{
+
+	}
+	ModelObject(ModelObject&& source)
+	{
+
+	}
+	
 	virtual void AddShader(CompiledShaderProgram shader) override {
 		Primitive::AddShader(shader);
-
-		
 	}
-
 
 	void SetTexture(std::string sampler_name, std::string path)
 	{

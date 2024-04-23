@@ -38,22 +38,22 @@ glm::vec3& WorldTrans::GetPosition()
 glm::mat4x4 WorldTrans::GetMatrix()
 {
 #if 0
-    glm::mat4 model = glm::mat4(1.0f);  // Start with an identity matrix
+    glm::mat4 meshes = glm::mat4(1.0f);  // Start with an identity matrix
 
     // Translate
-    model = glm::translate(model, m_pos);
+    meshes = glm::translate(meshes, m_pos);
 
     // Rotate on Z axis
-    model = glm::rotate(model, m_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+    meshes = glm::rotate(meshes, m_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
     // Rotate on Y axis
-    model = glm::rotate(model, m_rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+    meshes = glm::rotate(meshes, m_rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
     // Rotate on X axis
-    model = glm::rotate(model, m_rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+    meshes = glm::rotate(meshes, m_rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 
     // Scale
-    model = glm::scale(model, glm::vec3(m_scale, m_scale, m_scale));
+    meshes = glm::scale(meshes, glm::vec3(m_scale, m_scale, m_scale));
 
-    return model;
+    return meshes;
 #endif
 #if 1
     glm::vec3 scaleVector(m_scale, m_scale, m_scale); // Scale along x, y, and z axes

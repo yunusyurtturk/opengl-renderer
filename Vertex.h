@@ -8,6 +8,8 @@ struct Vertex {
     glm::vec3 color;
     glm::vec3 normal;
     glm::vec2 textureCoord;
+    glm::vec3 tangents;
+    glm::vec3 bitangents;
 
     Vertex() 
     {
@@ -15,6 +17,9 @@ struct Vertex {
         color = glm::vec3(0.0f, 0.0f, 0.0f);
         normal = glm::vec3(0.0f, 0.0f, 0.0f);
         textureCoord = glm::vec2(0.0f, 0.0f);
+
+        tangents = glm::vec3(0.0f, 0.0f, 0.0f);
+        bitangents = glm::vec3(0.0f, 0.0f, 0.0f);
     }
 
     Vertex(float x, float y, float z)
@@ -55,5 +60,13 @@ struct Vertex {
     void initTexture(float u, float v)
     {
         textureCoord = glm::vec2(u, v);
+    }
+    void initTangents(float x, float y, float z)
+    {
+        tangents = glm::vec3(x, y, z);
+    }
+    void initBitangents(float x, float y, float z)
+    {
+        bitangents = glm::vec3(x, y, z);
     }
 };

@@ -1,15 +1,13 @@
 #pragma once
-#include "../Model.h"
+#include "../Mesh.h"
 #include <GL/glew.h>
 #include <SDL_opengl.h>
 
-class Cube : public Model
+class Cube : public Mesh
 {
 private:
-	GLuint VBO = -1;
-	GLuint IBO = -1;
 
-	void initVertex()
+	void initCubeVertex()
 	{
 		std::vector<Vertex>& Vertices = GetVertex();
 		Vertices.resize(8);
@@ -24,31 +22,9 @@ private:
 		Vertices[6] = Vertex(0.5f, -0.5f, 0.5f,   0.5f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
 		Vertices[7] = Vertex(-0.5f, -0.5f, 0.5f,  0.5f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
 
-		int sizeofVertex = sizeof(Vertex);
-		int sizeofArray = sizeof(Vertices);
-
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(Vertex), &Vertices[0], GL_STATIC_DRAW);
-
-
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
-		// color
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-
-		// normal
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
-
-		// texture
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
+		
 	}
-	void initIndex()
+	void initCubeIndex()
 	{
 		std::vector<int>& Index = GetIndex();
 		Index.resize(36);
@@ -66,22 +42,11 @@ private:
 			2, 1, 4,
 			0, 2, 7
 		};
-		glGenBuffers(1, &IBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, Index.size() * sizeof(int), &Index[0], GL_STATIC_DRAW);
 	}
 public:
-	Cube() : Model()
+	Cube() : Mesh()
 	{
-		initVertex();
-		initIndex();
-	}
-
-	virtual void Draw() override
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		initCubeVertex();
+		initCubeIndex();
 	}
 };

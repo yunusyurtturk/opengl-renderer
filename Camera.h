@@ -17,6 +17,7 @@ public:
 
     void SetPosition(float x, float y, float z);
     const glm::vec3& GetPosition() const;
+    const glm::vec3& GetFront() const;
     void OnMouse(int deltaX, int deltaY);
     void OnKeyboard(unsigned char key);
     void OnRender();
