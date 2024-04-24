@@ -54,8 +54,11 @@ public:
 	{
 		index.push_back(new_index);
 	}
-	void Setup()
+	virtual void Setup()
 	{
+
+
+
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 		initVertex();
@@ -95,9 +98,34 @@ public:
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, Index.size() * sizeof(int), &Index[0], GL_STATIC_DRAW);
 		}
 	}
-	virtual void Draw() 
+	virtual void Draw(CompiledShaderProgram &shader)
 	{
-		
+		unsigned int diffuseNr = 1;
+		unsigned int specularNr = 1;
+		unsigned int normalNr = 1;
+		unsigned int heightNr = 1;
+
+		for (unsigned int i = 0; i < textures.size(); i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			std::string number;
+			std::string name = textures[i].typeName;
+			if (name == "texture_diffuse") {
+				number = std::to_string(diffuseNr++);
+			}
+			else if (name == "texture_specular") {
+				number = std::to_string(specularNr++);
+			}
+			else if (name == "texture_normal") {
+				number = std::to_string(normalNr++);
+			}
+			else if (name == "texture_height") {
+				number = std::to_string(heightNr++);
+			}
+			glUniform1i(glGetUniformLocation(shader.ShaderProgram, (name + number).c_str()), i);
+			// and finally bind the texture
+			glBindTexture(GL_TEXTURE_2D, textures[i].texture);
+		}
 		glBindVertexArray(VAO);
 		//glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);

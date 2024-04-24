@@ -178,6 +178,7 @@
     <ClInclude Include="WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\asset_model.fs" />
     <None Include="Shaders\diffuse_material.fs" />
     <None Include="Shaders\diffuse_material.vs" />
     <None Include="Shaders\light_source.fs" />

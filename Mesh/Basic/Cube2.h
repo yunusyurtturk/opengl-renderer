@@ -72,7 +72,7 @@ public:
 		}
 	}
 
-	virtual void Draw() override
+	virtual void Draw(CompiledShaderProgram& shader) override
 	{
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, VERTEX_COUNT);

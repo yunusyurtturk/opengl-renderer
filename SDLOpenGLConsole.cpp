@@ -167,7 +167,7 @@ int main(int ArgCount, char** Args)
         return 1;
     }
     ShaderCompiler shaderCompiler;
-
+    stbi_set_flip_vertically_on_load(true);
     glEnable(GL_DEPTH_TEST);
 
 
@@ -187,6 +187,7 @@ int main(int ArgCount, char** Args)
 
     const std::string pMaterialLightmapVertexShader = "./Shaders/material_lightmap.vs";
     const std::string pMaterialLightmapFragmentShader = "./Shaders/material_lightmap.fs";
+    const std::string pAssetFragmentShader = "./Shaders/asset_model.fs";
 
     CompiledShaderProgram solidShader = shaderCompiler.CompileShaders(pVSFileName, pFSSolidFileName);
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
@@ -195,6 +196,7 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
     CompiledShaderProgram materialShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pMaterialFragmentShader);
     CompiledShaderProgram lightmapShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pMaterialLightmapFragmentShader);
+    CompiledShaderProgram assetShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pAssetFragmentShader);
 
     float ambientStrength = 0.1f;
     float shininess = 64.f;
@@ -416,56 +418,10 @@ int main(int ArgCount, char** Args)
                                 auto new_primitive = std::make_shared<ModelObject>();
                                 new_primitive->SetName("Model" + std::to_string(i));
                                 //new_primitive->AddShader(solidShader);
-                                new_primitive->AddShader(lightmapShader);
+                                new_primitive->AddShader(assetShader);
                                 new_primitive->AddMesh(meshedLoaded);
                                 new_primitive->SetPosition(-3.0f, -3.0f, 0.0f);
                                 new_primitive->SetUniform("viewPos", &GameCamera.GetPosition());
-                                new_primitive->SetUniform("dirLight.direction", &dir_light_direction);
-                                new_primitive->SetUniform("dirLight.ambient", &dir_light_ambient);
-                                new_primitive->SetUniform("dirLight.diffuse", &dir_light_diffuse);
-                                new_primitive->SetUniform("dirLight.specular", &dir_light_specular);
-
-                                new_primitive->SetUniform("pointLights[0].position", &pointLightPositions[0]);
-                                new_primitive->SetUniform("pointLights[0].ambient", glm::vec3(0.05f, 0.05f, 0.05f));
-                                new_primitive->SetUniform("pointLights[0].diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-                                new_primitive->SetUniform("pointLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-                                new_primitive->SetUniform("pointLights[0].constant", 1.0f);
-                                new_primitive->SetUniform("pointLights[0].linear", 0.09f);
-                                new_primitive->SetUniform("pointLights[0].quadratic", 0.032f);
-
-                                new_primitive->SetUniform("pointLights[1].position", &pointLightPositions[1]);
-                                new_primitive->SetUniform("pointLights[1].ambient", glm::vec3(0.05f, 0.05f, 0.05f));
-                                new_primitive->SetUniform("pointLights[1].diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-                                new_primitive->SetUniform("pointLights[1].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-                                new_primitive->SetUniform("pointLights[1].constant", 1.0f);
-                                new_primitive->SetUniform("pointLights[1].linear", 0.09f);
-                                new_primitive->SetUniform("pointLights[1].quadratic", 0.032f);
-
-                                new_primitive->SetUniform("spotLight.position", &GameCamera.GetPosition());
-                                new_primitive->SetUniform("spotLight.direction", &GameCamera.GetFront());
-                                new_primitive->SetUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-                                new_primitive->SetUniform("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-                                new_primitive->SetUniform("spotLight.constant", 1.0f);
-                                new_primitive->SetUniform("spotLight.linear", 0.09f);
-                                new_primitive->SetUniform("spotLight.quadratic", 0.032f);
-                                new_primitive->SetUniform("spotLight.ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-                                new_primitive->SetUniform("spotLight.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-                                new_primitive->SetUniform("spotLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-
-
-
-                                new_primitive->SetUniform("strengths.ambient", &ambient_strength);
-                                new_primitive->SetUniform("strengths.diffuse", &diffuse_strength);
-                                new_primitive->SetUniform("strengths.specular", &specular_strength);
-
-
-                                new_primitive->SetTexture("material.diffuse", "./Textures/container2.png");
-                                new_primitive->SetTexture("material.specular", "./Textures/container2_specular.png");
-                                new_primitive->SetUniform("material.shininess", &shininess);
-                                new_primitive->SetUniform("light.position", &light->GetTransform().GetPosition());
-                                new_primitive->SetUniform("light.ambient", &light_ambient);
-                                new_primitive->SetUniform("light.diffuse", &light_diffuse);
-                                new_primitive->SetUniform("light.specular", &light_specular);
                                 Primitives.push_back(new_primitive);
                             }
                         }

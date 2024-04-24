@@ -102,7 +102,9 @@ public:
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
 	{
 		vector<Texture> textures;
-		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+		unsigned int count = mat->GetTextureCount(type);
+
+		for (unsigned int i = 0; i < count; i++) {
 			aiString str;
 			mat->GetTexture(type, i, &str);
 

@@ -129,6 +129,6 @@ public:
 		}
 
 		for (auto& mesh : meshes)
-			mesh->Draw();
+			mesh->Draw(m_Shaders[0]);
 	}
 };

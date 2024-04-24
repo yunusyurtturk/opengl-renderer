@@ -13,12 +13,14 @@ class Texture
 private:
 	int width, height, nrChannels;
 	std::string texturePath;
-	std::string typeName;
+	
 	unsigned char* data;
-	GLuint texture;
+	
 	GLenum format;
 	unsigned int textureIndex;
 public:
+	std::string typeName;
+	GLuint texture;
 	~Texture()
 	{
 
@@ -47,7 +49,7 @@ public:
 			format = GL_RGBA;
 
 		glGenTextures(1, &texture);
-		glActiveTexture(GL_TEXTURE0 + textureIndex);
+//		glActiveTexture(GL_TEXTURE0 + textureIndex);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
