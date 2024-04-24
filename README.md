@@ -8,6 +8,12 @@ Although I am already familiar with many of the concepts involved, my experience
 <img width="928" alt="image" src="https://github.com/yunusyurtturk/opengl-renderer/assets/3541564/48d94c3d-2eae-453a-b23d-c474f9ecb8ea">
 
 
+Now it can render complex .fbx objects (diffuse only)
+
+<img width="1016" alt="image" src="https://github.com/yunusyurtturk/opengl-renderer/assets/3541564/093e6d28-5636-4439-8c03-acbb0c8f9f95">
+
+
+
 * 3D coordinate
 * Perspective camera/projection
 * Culling
