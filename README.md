@@ -23,6 +23,7 @@ Although I am already familiar with many of the concepts involved, my experience
 
 
 Basic
+
 <img width="928" alt="image" src="https://github.com/yunusyurtturk/opengl-renderer/assets/3541564/48d94c3d-2eae-453a-b23d-c474f9ecb8ea">
 
 
@@ -33,4 +34,9 @@ Now it can render complex .fbx objects (diffuse only)
 
 Framebuffers & post-processing shader selection. See Framebuffer and ScreenShader combobox selection on right.
 
+<img width="1013" alt="image" src="https://github.com/yunusyurtturk/opengl-renderer/assets/3541564/ccd85a42-146e-4efe-9909-ea31507906f0">
+
+
+
 <img width="1010" alt="image" src="https://github.com/yunusyurtturk/opengl-renderer/assets/3541564/4d292cfb-d8b2-427a-a1bb-10a33eb86ee9">
+
