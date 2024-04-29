@@ -199,6 +199,12 @@
     </None>
     <None Include="Shaders\Screen\screen_shader.vs" />
     <None Include="Shaders\Screen\screen_shader.fs" />
+    <None Include="Shaders\Screen\shader_screen_grayscale.fs" />
+    <None Include="Shaders\Screen\shader_screen_inversion.fs" />
+    <None Include="Shaders\Screen\shader_screen_grayscale_enhanced.fs" />
+    <None Include="Shaders\Screen\Kernels\sharpen.fs" />
+    <None Include="Shaders\Screen\Kernels\blur.fs" />
+    <None Include="Shaders\Screen\Kernels\edge.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\container2.png">

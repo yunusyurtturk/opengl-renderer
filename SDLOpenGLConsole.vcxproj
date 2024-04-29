@@ -192,8 +192,14 @@
     <None Include="Shaders\material_lightmap.fs" />
     <None Include="Shaders\material_lightmap.vs" />
     <None Include="Shaders\material_struct.fs" />
+    <None Include="Shaders\Screen\Kernels\blur.fs" />
+    <None Include="Shaders\Screen\Kernels\edge.fs" />
+    <None Include="Shaders\Screen\Kernels\sharpen.fs" />
     <None Include="Shaders\Screen\screen_shader.fs" />
     <None Include="Shaders\Screen\screen_shader.vs" />
+    <None Include="Shaders\Screen\shader_screen_grayscale.fs" />
+    <None Include="Shaders\Screen\shader_screen_grayscale_enhanced.fs" />
+    <None Include="Shaders\Screen\shader_screen_inversion.fs" />
     <None Include="Shaders\shader.fs" />
     <None Include="Shaders\shader.vs" />
     <None Include="Shaders\shader2.fs" />

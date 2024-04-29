@@ -122,7 +122,12 @@ public:
 	}
 	virtual void Update(glm::mat4x4& vp)
 	{
-		glUseProgram(m_Shaders[0].ShaderProgram);
+		Update(vp, m_Shaders[0]);
+	}
+
+	virtual void Update(glm::mat4x4& vp, CompiledShaderProgram& shader)
+	{
+		glUseProgram(shader.ShaderProgram);
 
 		if (gViewLocation != -1) {
 			glUniformMatrix4fv(gViewLocation, 1, GL_FALSE, glm::value_ptr(vp));
@@ -137,5 +142,6 @@ public:
 
 		for (auto& mesh : meshes)
 			mesh->Draw(m_Shaders[0]);
+		
 	}
 };

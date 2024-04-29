@@ -174,6 +174,14 @@ int main(int ArgCount, char** Args)
     const std::string pScreenVSFileName = "./Shaders/Screen/screen_shader.vs";
     const std::string pScreenFSFileName = "./Shaders/Screen/screen_shader.fs";
 
+    const std::string pScreenFSInversionFileName = "./Shaders/Screen/shader_screen_inversion.fs";
+    const std::string pScreenFSGrayscaleEnhancedFileName = "./Shaders/Screen/shader_screen_grayscale_enhanced.fs";
+    const std::string pScreenFSGrayscaleFileName = "./Shaders/Screen/shader_screen_grayscale.fs";
+
+    const std::string pScreenKernelBlurFileName = "./Shaders/Screen/Kernels/blur.fs";
+    const std::string pScreenKernelEdgeFileName = "./Shaders/Screen/Kernels/edge.fs";
+    const std::string pScreenKernelSharpenFileName = "./Shaders/Screen/Kernels/sharpen.fs";
+
     const std::string pVSFileName  = "./Shaders/shader.vs";
     const std::string pFSSolidFileName = "./Shaders/shader_solid.fs";
     const std::string pFSFileName  = "./Shaders/shader.fs";
@@ -194,6 +202,14 @@ int main(int ArgCount, char** Args)
 
     CompiledShaderProgram screenShader = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSFileName);
 
+    CompiledShaderProgram screenShaderInversion = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSInversionFileName);
+    CompiledShaderProgram screenShaderGrayscaleEnh = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSGrayscaleEnhancedFileName);
+    CompiledShaderProgram screenShaderGrayscale = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSGrayscaleFileName);
+
+    CompiledShaderProgram screenKernelShaderSharpen = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenKernelSharpenFileName);
+    CompiledShaderProgram screenKernelShaderBlur = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenKernelBlurFileName);
+    CompiledShaderProgram screenKernelShaderEdge = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenKernelEdgeFileName);
+
     CompiledShaderProgram solidShader = shaderCompiler.CompileShaders(pVSFileName, pFSSolidFileName);
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
@@ -202,6 +218,8 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram materialShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pMaterialFragmentShader);
     CompiledShaderProgram lightmapShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pMaterialLightmapFragmentShader);
     CompiledShaderProgram assetShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pAssetFragmentShader);
+
+    CompiledShaderProgram &pScreenShaderSelected = screenShader;
 
     GLuint fbo;
     Framebuffer framebuffer(800, 600);
@@ -376,6 +394,17 @@ int main(int ArgCount, char** Args)
     bool show_demo_window = true;
     bool show_another_window = false;
     bool attachFramebuffer = false;
+    static int currentScreenShaderIndex = 0;
+
+    std::vector<std::pair<std::string, CompiledShaderProgram>> screenShaderList = {
+        {"Default", screenShader},
+        {"Grayscale", screenShaderGrayscale},
+        {"Grayscale Enh.", screenShaderGrayscaleEnh},
+        {"Inversion", screenShaderInversion},
+        {"Sharpen(Kernel)", screenKernelShaderSharpen},
+        {"Blur(Kernel)", screenKernelShaderBlur},
+        {"Edge(Kernel)", screenKernelShaderEdge},
+    };
 
     while (Running)
     {
@@ -494,6 +523,12 @@ int main(int ArgCount, char** Args)
             ImGui::Checkbox("Another Window", &show_another_window);
             ImGui::Separator();
             ImGui::Checkbox("FrameBuffer", &attachFramebuffer);
+            
+            std::vector<const char*> screenShaderNamesList;
+            for (const auto& item : screenShaderList) {
+                screenShaderNamesList.push_back(item.first.c_str());
+            }
+            ImGui::Combo("ScreenShader", &currentScreenShaderIndex, screenShaderNamesList.data(), static_cast<int>(screenShaderList.size()));
             ImGui::Separator();
             ImGui::Text("Lightning");
 
@@ -571,14 +606,14 @@ int main(int ArgCount, char** Args)
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            screenShader.Use();
+            //pScreenShaderSelected.Use();
             glm::mat4x4 View = GameCamera.GetMatrix();
             glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
             glm::mat4x4 VP = Projection * View;
 
             for (auto& primitive : FramebufferPrimitives)
             {
-                primitive->Update(VP);
+                primitive->Update(VP, screenShaderList[currentScreenShaderIndex].second);
             }
             GLenum err= glGetError();
             volatile int b = 0;

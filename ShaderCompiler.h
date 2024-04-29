@@ -14,12 +14,12 @@ class ShaderCompiler
 private:
     GLuint ShaderProgram;
 public:
-    static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
+    static void AddShader(GLuint ShaderProgram, const char* pShaderText, const std::string &fileName, GLenum ShaderType)
     {
         GLuint ShaderObj = glCreateShader(ShaderType);
 
         if (ShaderObj == 0) {
-            fprintf(stderr, "Error creating shader type %d\n", ShaderType);
+            fprintf(stderr, "Error creating shader type. %d, File: %s\n", ShaderType, fileName.c_str());
             exit(0);
         }
 
@@ -39,7 +39,7 @@ public:
         if (!success) {
             GLchar InfoLog[1024];
             glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
-            fprintf(stderr, "Error compiling shader type %d: '%s'\n", ShaderType, InfoLog);
+            fprintf(stderr, "Error compiling shader type %d File: %s: '%s'\n", ShaderType, fileName.c_str(), InfoLog);
             exit(1);
         }
 
@@ -63,12 +63,12 @@ public:
             exit(1);
         }
 
-        AddShader(ShaderProgram, vertexShader.c_str(), GL_VERTEX_SHADER);
+        AddShader(ShaderProgram, vertexShader.c_str(), vertexShaderFile, GL_VERTEX_SHADER);
 
         if (!ReadFile(fragmentShaderFile.c_str(), fragmentShader)) {
             exit(1);
         }
-        AddShader(ShaderProgram, fragmentShader.c_str(), GL_FRAGMENT_SHADER);
+        AddShader(ShaderProgram, fragmentShader.c_str(), fragmentShaderFile, GL_FRAGMENT_SHADER);
 
         GLint Success = 0;
         GLchar ErrorLog[1024] = { 0 };
