@@ -34,11 +34,14 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "Framebuffers/Framebuffer.h"
+#include "Mesh/Basic/Plane.h"
+#include "Mesh/Basic/Quad.h"
 
 typedef int32_t i32;
 typedef uint32_t u32;
 typedef int32_t b32;
-
+ 
 #define WinWidth 800
 #define WinHeight 800
 
@@ -60,35 +63,30 @@ glm::vec3 CameraUp(0.0f, 1.0f, 0.0f);
 Camera GameCamera(WinWidth, WinHeight, CameraPos, CameraTarget, CameraUp);
 
 std::vector<std::shared_ptr<Primitive>> Primitives;
+std::vector<std::shared_ptr<Primitive>> FramebufferPrimitives;
 
 float FOV = 45.0f;
-float NearZ = 1.0f;
+float NearZ = 0.1f;
 float FarZ = 40.0f;
 float ar = (float)WinWidth / (float)(WinHeight);
 
 static bool openFilePicker = false;
 
-static void RenderSceneCB( vector<std::shared_ptr<Primitive>> &Primitives)
+static void RenderSceneCB( vector<std::shared_ptr<Primitive>> &primitivesToDraw)
 {
     float YRotationAngle = 1.0f;
+
     GameCamera.OnRender();
 
-    Primitives[0]->GetTransform().Rotate(0.0f, YRotationAngle, 0.0f);
-    Primitives[1]->GetTransform().Rotate(YRotationAngle, 0.0f, 0.0f);
-
-    if (Primitives.size() > 2) {
-        //Primitives[2]->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
+    for (auto& primitive : primitivesToDraw) {
+        primitive->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
     }
-    
-    
-    //Primitives[3]->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
-    
+
     glm::mat4x4 View = GameCamera.GetMatrix();
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
     glm::mat4x4 VP = Projection * View;
 
-
-   for (auto& primitive : Primitives)
+   for (auto& primitive : primitivesToDraw)
    {
        primitive->Update(VP);
    }
@@ -169,7 +167,12 @@ int main(int ArgCount, char** Args)
     ShaderCompiler shaderCompiler;
     stbi_set_flip_vertically_on_load(true);
     glEnable(GL_DEPTH_TEST);
+ //   glEnable(GL_STENCIL_TEST);
+ //   glEnable(GL_BLEND);
+ //   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    const std::string pScreenVSFileName = "./Shaders/Screen/screen_shader.vs";
+    const std::string pScreenFSFileName = "./Shaders/Screen/screen_shader.fs";
 
     const std::string pVSFileName  = "./Shaders/shader.vs";
     const std::string pFSSolidFileName = "./Shaders/shader_solid.fs";
@@ -189,6 +192,8 @@ int main(int ArgCount, char** Args)
     const std::string pMaterialLightmapFragmentShader = "./Shaders/material_lightmap.fs";
     const std::string pAssetFragmentShader = "./Shaders/asset_model.fs";
 
+    CompiledShaderProgram screenShader = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSFileName);
+
     CompiledShaderProgram solidShader = shaderCompiler.CompileShaders(pVSFileName, pFSSolidFileName);
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
@@ -197,6 +202,10 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram materialShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pMaterialFragmentShader);
     CompiledShaderProgram lightmapShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pMaterialLightmapFragmentShader);
     CompiledShaderProgram assetShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pAssetFragmentShader);
+
+    GLuint fbo;
+    Framebuffer framebuffer(800, 600);
+    framebuffer.Setup();
 
     float ambientStrength = 0.1f;
     float shininess = 64.f;
@@ -212,23 +221,45 @@ int main(int ArgCount, char** Args)
     light->SetPosition(0.0f, 1.0f, 0.0f);
     light->Setup();
     Primitives.push_back(light);
-    /*
+    
     std::shared_ptr<ModelObject> cube = std::make_shared<ModelObject>();
+    std::unique_ptr<Cube2> mesh = std::make_unique<Cube2>();
+    std::shared_ptr<Texture> cubeTexture = std::make_shared<Texture>("./Textures/container2.png", "gSampler");
+    mesh.get()->AddTexture(cubeTexture.get());
     cube->SetName("Cube");
     cube->AddShader(textureShader);
-    cube->AddMesh(std::make_unique<Cube>());
-    cube->SetTexture("gSampler", "bricks.jpg");
-    cube->SetPosition(0.0, -1.0f, 0.0f);
+    cube->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(cubeTexture));
+    cube->AddMesh(std::move(mesh));
+    cube->SetPosition(0.0, -3.0f, 0.0f);
+    cube->Setup();
     Primitives.push_back(cube);
 
+    
+
+    std::shared_ptr<ModelObject> screenQuad = std::make_shared<ModelObject>();
+    std::unique_ptr<Quad> meshCpy = std::make_unique<Quad>();
+    
+    meshCpy.get()->AddTexture(framebuffer.GetTexture().get());
+    screenQuad->SetName("cubeCpy");
+    screenQuad->AddShader(screenShader);
+    meshCpy->Setup();
+    screenQuad->SetUniform("screenTexture", framebuffer.GetTexture());
+    //screenQuad->SetUniform("screenTexture", std::forward<shared_ptr<Texture>>(cubeTexture));
+    screenQuad->AddMesh(std::move(meshCpy));
+    screenQuad->SetPosition(0.0, -3.0f, 0.0f);
+    screenQuad->Setup();
+    FramebufferPrimitives.push_back(screenQuad);
+
+    /*
     std::shared_ptr<ModelObject> cube2 = std::make_shared<ModelObject>();
     cube2->SetName("Cube2");
     cube2->AddShader(textureShader);
     cube2->AddMesh(std::make_unique<Cube>());
     cube2->SetTexture("gSampler", "container.jpg");
     cube2->SetPosition(1.0, 0.0f, 0.0f);
+    cube2->Setup();
     Primitives.push_back(cube2);
-
+    
     std::shared_ptr<ModelObject> cube3 = std::make_shared<ModelObject>();
     cube3->SetName("CubeDiffuse");
     cube3->AddMesh(std::make_unique<Cube2>());
@@ -258,6 +289,11 @@ int main(int ArgCount, char** Args)
     cube4->SetUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
     Primitives.push_back(cube4);
     */
+
+    
+   // framebuffer.Attach();
+
+
     float ambient_strength = 0.1f;
     float diffuse_strength = 1.0f;
     float specular_strength = 1.0f;
@@ -277,7 +313,7 @@ int main(int ArgCount, char** Args)
         glm::vec3(-4.0f,  2.0f, -12.0f),
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
-
+    /*
     std::shared_ptr<ModelObject> cube5 = std::make_shared<ModelObject>();
     cube5->SetName("LightMapCube");
     cube5->AddMesh(std::make_unique<Cube2>());
@@ -335,10 +371,11 @@ int main(int ArgCount, char** Args)
     cube5->Setup();
     //
     Primitives.push_back(cube5);
-
+    */
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool show_demo_window = true;
     bool show_another_window = false;
+    bool attachFramebuffer = false;
 
     while (Running)
     {
@@ -394,9 +431,25 @@ int main(int ArgCount, char** Args)
             }
         }
 
+        if (attachFramebuffer)
+        {
+            //   glViewport(0, 0, 1024, 768);
+            framebuffer.Attach();
+            glClearColor(1.0f, 0.0f, 0.5f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+        else {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_STENCIL_TEST);
+            glEnable(GL_BLEND);
+            framebuffer.Detach();
+        }
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
+        
+        
 
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
@@ -412,7 +465,7 @@ int main(int ArgCount, char** Args)
                             std::cout << "Selected file: " << filePath << std::endl;
 
                             vector<unique_ptr<Mesh>> meshedLoaded;
-                            vector<Texture> texturesLoaded;
+                            vector<Texture *> texturesLoaded;
                             AssetLoader::AssetLoader(filePath, meshedLoaded, texturesLoaded);
                             for (int i = 0; i < meshedLoaded.size(); i++) {
                                 auto new_primitive = std::make_shared<ModelObject>();
@@ -422,6 +475,9 @@ int main(int ArgCount, char** Args)
                                 new_primitive->AddMesh(meshedLoaded);
                                 new_primitive->SetPosition(-3.0f, -3.0f, 0.0f);
                                 new_primitive->SetUniform("viewPos", &GameCamera.GetPosition());
+                                new_primitive->SetUniform("lightPos", &light->GetTransform().GetPosition());
+                                new_primitive->SetUniform("lightColor", &light->GetLightColorRef());
+                                new_primitive->SetUniform("objectColor", &light->GetObjectColorRef());
                                 Primitives.push_back(new_primitive);
                             }
                         }
@@ -436,6 +492,9 @@ int main(int ArgCount, char** Args)
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
+            ImGui::Separator();
+            ImGui::Checkbox("FrameBuffer", &attachFramebuffer);
+            ImGui::Separator();
             ImGui::Text("Lightning");
 
             ImGui::ColorEdit3("Light Color", (float*)&light->GetLightColorRef());
@@ -480,9 +539,12 @@ int main(int ArgCount, char** Args)
 
         // Rendering
         ImGui::Render();
+
+       
+
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Update and Render additional Platform Windows
@@ -497,8 +559,30 @@ int main(int ArgCount, char** Args)
             SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
         }
 
+        
+    
         RenderSceneCB(Primitives);
 
+        if (attachFramebuffer)
+        {
+            framebuffer.Detach();
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glDisable(GL_DEPTH_TEST);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            screenShader.Use();
+            glm::mat4x4 View = GameCamera.GetMatrix();
+            glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
+            glm::mat4x4 VP = Projection * View;
+
+            for (auto& primitive : FramebufferPrimitives)
+            {
+                primitive->Update(VP);
+            }
+            GLenum err= glGetError();
+            volatile int b = 0;
+        }
         SDL_GL_SwapWindow(Window);
     }
 

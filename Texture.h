@@ -14,16 +14,39 @@ private:
 	int width, height, nrChannels;
 	std::string texturePath;
 	
-	unsigned char* data;
+	unsigned char* data = 0;
 	
 	GLenum format;
-	unsigned int textureIndex;
+	unsigned int textureIndex = 0;
+	GLuint GenerateTexture(int width, int height)
+	{
+		glGenTextures(1, &texture);
+		//		glActiveTexture(GL_TEXTURE0 + textureIndex);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); 
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		return texture;
+	}
 public:
 	std::string typeName;
 	GLuint texture;
 	~Texture()
 	{
 
+	}
+	Texture(Texture&& other)
+	
+		: width(other.width), height(other.height), nrChannels(other.nrChannels),
+			texturePath(std::move(other.texturePath)), data(other.data), format(other.format) {
+			// After moving, set the other's data pointer to nullptr to avoid double free
+			other.data = nullptr;
 	}
 	Texture(std::string texture_path, std::string type_name = "") : textureIndex(0), texturePath(texture_path), typeName(type_name)
 	{
@@ -33,6 +56,15 @@ public:
 	Texture(std::string texturePath, GLuint& outTexture, unsigned int texture_index = 0) : textureIndex(texture_index)
 	{
 		Init(texturePath, outTexture, texture_index);
+	}
+	Texture(GLenum tex_format, int in_width, int in_height, GLuint& outTexture) : width(in_width), height(in_height)
+	{
+		format = tex_format;
+		Init(outTexture);
+	}
+	void Init(GLuint& outTexture)
+	{
+		outTexture = GenerateTexture(width, height);
 	}
 	void Init(std::string texturePath, GLuint& outTexture, unsigned int texture_index)
 	{
@@ -48,16 +80,7 @@ public:
 		else if (nrChannels == 4)
 			format = GL_RGBA;
 
-		glGenTextures(1, &texture);
-//		glActiveTexture(GL_TEXTURE0 + textureIndex);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		outTexture = GenerateTexture(width, height);
 		stbi_image_free(data);
 
 		outTexture = texture;

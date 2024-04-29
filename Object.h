@@ -15,7 +15,7 @@ class ModelObject : public Primitive
 private:
 	std::vector<GLuint> texture;
 	GLuint gSamplerLocation = -1;
-	std::vector<std::shared_ptr<Texture>> m_textures;
+	std::vector<Texture *> m_textures;
 	unsigned int m_textureIndex = 0;
 	
 public:
@@ -40,8 +40,9 @@ public:
 	void SetTexture(std::string sampler_name, std::string path)
 	{
 		texture.push_back(0);
-		m_textures.emplace_back(std::make_shared<Texture>(path, texture.back(), m_textureIndex));
-		SetUniform(sampler_name, &m_textures.back());
+		Texture *text = new Texture(path, texture.back(), m_textureIndex);
+		m_textures.push_back(text);
+		SetUniform(sampler_name, &text);
 		m_textureIndex++;
 
 	//	if (gSamplerLocation == -1) {

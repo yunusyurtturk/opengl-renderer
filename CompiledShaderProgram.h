@@ -15,4 +15,10 @@ public:
     std::string VertexShader;
     std::string FragmentShader;
 
+    void Use()
+    {
+        if(ShaderProgram >= 0)
+            glUseProgram(ShaderProgram);
+    }
+
 };

@@ -13,7 +13,7 @@ private:
 
 	std::vector<Vertex> vertex;
 	std::vector<int> index;
-	std::vector<Texture> textures;
+	std::vector<Texture *> textures;
 protected:
 	int vertexCount = 0;
 	GLuint VAO = -1;
@@ -41,9 +41,14 @@ public:
 	{
 		return index;
 	}
-	std::vector<Texture>& GetTextures()
+	std::vector<Texture *>& GetTextures()
 	{
 		return textures;
+	}
+
+	void AddTexture(Texture * texture)
+	{
+		textures.emplace_back(texture);
 	}
 
 	void AddVertex(Vertex&& new_vertex)
@@ -56,9 +61,6 @@ public:
 	}
 	virtual void Setup()
 	{
-
-
-
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
 		initVertex();
@@ -109,7 +111,7 @@ public:
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			std::string number;
-			std::string name = textures[i].typeName;
+			std::string name = textures[i]->typeName;
 			if (name == "texture_diffuse") {
 				number = std::to_string(diffuseNr++);
 			}
@@ -124,7 +126,7 @@ public:
 			}
 			glUniform1i(glGetUniformLocation(shader.ShaderProgram, (name + number).c_str()), i);
 			// and finally bind the texture
-			glBindTexture(GL_TEXTURE_2D, textures[i].texture);
+			glBindTexture(GL_TEXTURE_2D, textures[i]->texture);
 		}
 		glBindVertexArray(VAO);
 		//glBindBuffer(GL_ARRAY_BUFFER, VBO);

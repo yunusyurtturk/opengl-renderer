@@ -26,7 +26,7 @@ protected:
 	unsigned int m_ShaderIndex = 0;
 	WorldTrans m_transform;
 	std::array<CompiledShaderProgram, 8> m_Shaders;
-	std::vector<std::unique_ptr<UniformSlot>> uniformElements;
+	std::vector<std::shared_ptr<UniformSlot>> uniformElements;
 	std::string m_Name;
 
 	std::vector<std::unique_ptr<Mesh>> meshes;
@@ -72,13 +72,13 @@ public:
 		gWLocation = glGetUniformLocation(shader.ShaderProgram, "gWP");
 		if (gWLocation == -1) {
 			std::cout << "Error getting uniform location 'gWP' in " << shader.FragmentShader << " or " << shader.VertexShader << "\n";
-			exit(1);
+			//exit(1);
 		}
 
 		gViewLocation = glGetUniformLocation(shader.ShaderProgram, "gVP");
 		if (gViewLocation == -1) {
 			std::cout << "Error getting uniform location 'gVP' in " << shader.FragmentShader << " or " << shader.VertexShader << "\n";
-			exit(1);
+			//exit(1);
 		}
 	}
 	template<typename T>
@@ -86,14 +86,21 @@ public:
 		
 		using PType = typename std::remove_pointer<T>::type;
 
+		glUseProgram(m_Shaders[0].ShaderProgram);
+
 		if (m_Shaders[m_ShaderIndex - 1].ShaderProgram != -1) {
-			
-			uniformElements.emplace_back(std::make_unique<UniformElement<PType>>(m_Shaders[m_ShaderIndex - 1].ShaderProgram, uniform_name));
+			std::shared_ptr<UniformElement<PType>> element = std::make_shared<UniformElement<PType>>(m_Shaders[m_ShaderIndex - 1].ShaderProgram, uniform_name);
+			uniformElements.emplace_back(element);
 			if constexpr (std::is_pointer_v<T>) {
-				static_cast<UniformElement<PType>*>(uniformElements.back().get())->bind(val);
+
+				std::cout << "Binded as is_pointer_v" << "\n";
+				element->bind(val);
+				//static_cast<UniformElement<PType>*>(uniformElements.back().get())->bind(std::forward<T>(val));
 			}
 			else {
-				static_cast<UniformElement<PType>*>(uniformElements.back().get())->bind(&val);
+				//static_cast<UniformElement<PType>*>(uniformElements.back().get())->bind(std::forward<T>(val));
+				std::cout << "Binded as is_pointer_v NOT" << "\n";
+				element->bind(&val);
 			}
 		}
 	}

@@ -143,6 +143,18 @@
     <ClInclude Include="Mesh\Basic\MeshTemplate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Framebuffers\Framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh\Basic\Plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh\Basic\Quad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderbuffer\Renderbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\shader.fs">
@@ -185,12 +197,20 @@
     <None Include="Shaders\asset_model.fs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\Screen\screen_shader.vs" />
+    <None Include="Shaders\Screen\screen_shader.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\container2.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Textures\container2_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\blending_transparent_window.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

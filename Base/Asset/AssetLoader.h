@@ -12,11 +12,11 @@ class AssetLoader
 private:
 	std::string directory;
 	vector<unique_ptr<Mesh>> *meshes;
-	vector<Texture> textures_loaded;
+	vector<Texture *> textures_loaded;
 	std::filesystem::path full_path;
 	std::filesystem::path parent_path;
 public:
-	AssetLoader(std::string const &path, vector<unique_ptr<Mesh>> &outMeshes, vector<Texture> &outTextures): 
+	AssetLoader(std::string const &path, vector<unique_ptr<Mesh>> &outMeshes, vector<Texture *> &outTextures): 
 		full_path(path),
 		parent_path(full_path.parent_path())
 	{
@@ -99,9 +99,9 @@ public:
 		return meshTemplate;
 	}
 
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
+	std::vector<Texture *> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
 	{
-		vector<Texture> textures;
+		vector<Texture *> textures;
 		unsigned int count = mat->GetTextureCount(type);
 
 		for (unsigned int i = 0; i < count; i++) {
@@ -112,14 +112,14 @@ public:
 
 			auto full_path_str = (parent_path / str.C_Str()).string();
 			for (auto j = 0; j < textures_loaded.size(); j++) {
-				if (std::strcmp(textures_loaded[j].getPath().c_str(), full_path_str.c_str()) == 0) {
+				if (std::strcmp(textures_loaded[j]->getPath().c_str(), full_path_str.c_str()) == 0) {
 					textures.push_back(textures_loaded[j]);
 					skip = true;
 					break;
 				}
 			}
 			if (!skip) {
-				Texture texture(full_path_str, typeName);
+				Texture * texture = new Texture(full_path_str, typeName);
 				textures.push_back(texture);
 				textures_loaded.push_back(texture);
 			}

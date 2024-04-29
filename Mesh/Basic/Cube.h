@@ -49,4 +49,9 @@ public:
 		initCubeVertex();
 		initCubeIndex();
 	}
+	virtual void Draw(CompiledShaderProgram& shader) override
+	{
+		
+		Mesh::Draw(shader);
+	}
 };

@@ -10,10 +10,10 @@ private:
 	GLuint IBO = -1;
 	
 public:
-	vector<Texture> diffuseMaps;
-	vector<Texture> specularMaps;
-	vector<Texture> normalMaps;
-	vector<Texture> heightMaps;
+	vector<Texture *> diffuseMaps;
+	vector<Texture *> specularMaps;
+	vector<Texture *> normalMaps;
+	vector<Texture *> heightMaps;
 
 	MeshTemplate() : Mesh()
 	{
@@ -39,10 +39,6 @@ public:
 		normalMaps.clear();
 		heightMaps.clear();
 		Mesh::Setup();
-	}
-	void SetDiffuseMaps(std::vector<Texture> &&source_diffuses)
-	{
-		diffuseMaps = source_diffuses;
 	}
 
 };

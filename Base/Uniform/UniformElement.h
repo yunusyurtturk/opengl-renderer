@@ -48,18 +48,22 @@ public:
             glBindTexture(GL_TEXTURE_2D, pBindedValue->getTexture());
             glUniform1i(uniformLocation, 0);
         }
-        else if constexpr (std::is_same_v<T, std::unique_ptr<Texture>>) {
-            unsigned int texture_index = pBindedValue->get()->getTextureIndex();
-            glActiveTexture(GL_TEXTURE0 + texture_index);
-            glBindTexture(GL_TEXTURE_2D, pBindedValue->get()->getTexture());
-        }
-        else if constexpr (std::is_same_v<T, std::shared_ptr<Texture>>) {
-            unsigned int texture_index = pBindedValue->get()->getTextureIndex();
-            GLuint texture = pBindedValue->get()->getTexture();
+        else if constexpr (std::is_same_v<T, Texture*>) {
+            unsigned int texture_index = (*pBindedValue)->getTextureIndex();
+            GLuint texture = (*pBindedValue)->getTexture();
             glUniform1i(uniformLocation, texture_index);
             glActiveTexture(GL_TEXTURE0 + texture_index);
             glBindTexture(GL_TEXTURE_2D, texture);
         }
+        else if constexpr (std::is_same_v<T, std::shared_ptr<Texture>>) {
+            unsigned int texture_index = pBindedValue->get()->getTextureIndex();
+            GLuint texture = (*pBindedValue)->getTexture();
+            glUniform1i(uniformLocation, texture_index);
+            glActiveTexture(GL_TEXTURE0 + texture_index);
+            glBindTexture(GL_TEXTURE_2D, texture);
+        }
+
+        
     }
 
     void set(T value) const {
