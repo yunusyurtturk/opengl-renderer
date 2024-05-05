@@ -1,5 +1,11 @@
 #include "camera.h"
 #include <SDL_keycode.h>
+#include <iostream>
+
+#define GLM_ENABLE_EXPERIMENTAL 
+#include <glm/gtx/rotate_vector.hpp>
+
+
 
 static int MARGIN = 10;
 static float EDGE_STEP = 1.0f;
@@ -89,43 +95,18 @@ const glm::vec3& Camera::GetFront() const
 
 void Camera::OnMouse(int x, int y)
 {
-    Update();
-    return;
-    int DeltaX = x * 10 ;
-    int DeltaY = y * 10 ;
+    
 
-    m_mousePos.x = x;
-    m_mousePos.y = y;
+    float xRel = x;
+    float yRel = y;
+    std::cout << "Mouse moved: (" << xRel << ", " << xRel  << std::endl;
 
-    m_AngleH += (float)DeltaX / 20.0f;
-    m_AngleV += (float)DeltaY / 50.0f;
+    m_target = glm::rotate(m_target, glm::radians(x * 0.1f), m_up);
+    glm::vec3 right = glm::cross(m_up, m_target);
+    m_target = glm::normalize(glm::rotate(m_target, glm::radians(y * 0.1f), right));
 
-    if (DeltaX == 0) {
-        if (x <= MARGIN) {
-            m_OnLeftEdge = true;
-        }
-        else if (x >= (m_windowWidth - MARGIN)) {
-            m_OnRightEdge = true;
-        }
-    }
-    else {
-        m_OnLeftEdge = false;
-        m_OnRightEdge = false;
-    }
-
-    if (DeltaY == 0) {
-        if (y <= MARGIN) {
-            m_OnUpperEdge = true;
-        }
-        else if (y >= (m_windowHeight - MARGIN)) {
-            m_OnLowerEdge = true;
-        }
-    }
-    else {
-        m_OnUpperEdge = false;
-        m_OnLowerEdge = false;
-    }
-    Update();
+     //Update();
+    //Rotate(0.0f, 0.1);
     
 }
 
@@ -134,7 +115,7 @@ void Camera::OnKeyboard(unsigned char Key)
     switch (Key) {
 
     case SDLK_w:
-        m_pos += (m_speed * m_target);
+        m_pos -= (m_speed * m_target);
         break;
     case SDLK_a:
         glm::vec3 Left = glm::cross(m_target, m_up);
@@ -143,7 +124,7 @@ void Camera::OnKeyboard(unsigned char Key)
         m_pos += Left;
         break;
     case SDLK_s:
-        m_pos -= (m_speed * m_target);
+        m_pos += (m_speed * m_target);
         break;
     case SDLK_d:
         glm::vec3 Right = glm::cross(m_up, m_target);
@@ -173,28 +154,26 @@ void Camera::OnKeyboard(unsigned char Key)
 
 void Camera::Update()
 {
-#if 0
-    glm::vec3 Yaxis(0.0f, 1.0f, 0.0f);
-    glm::mat4 rotM = glm::mat4(1.0f);
-
-    // Rotate the view vector by the horizontal angle around the vertical axis
-    glm::vec3 View(1.0f, 0.0f, 0.0f);
-    rotM = glm::rotate(rotM, glm::radians(m_AngleH), Yaxis);
-    glm::vec4 transformedView = rotM * glm::vec4(View, 1.0f);
-    View = glm::vec3(transformedView.x, transformedView.y, transformedView.z);
-
-    // Rotate the view vector by the vertical angle around the horizontal axis
-    glm::vec3 U = glm::cross(Yaxis, View);
-    U = glm::normalize(U);
-    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(m_AngleV), U);
-    glm::vec4 rotatedVector = rotationMatrix * glm::vec4(View, 1.0f);
-    View = glm::vec3(rotatedVector.x, rotatedVector.y, rotatedVector.z);;
-
-    m_target = View;
-    m_target = glm::normalize(m_target);
-
-    m_up = glm::normalize(glm::cross(m_target, U)); 
-#endif
+//    glm::vec3 Yaxis(0.0f, 1.0f, 0.0f);
+//    glm::mat4 rotM = glm::mat4(1.0f);
+//
+//    // Rotate the view vector by the horizontal angle around the vertical axis
+//    glm::vec3 View(1.0f, 0.0f, 0.0f);
+//    rotM = glm::rotate(rotM, glm::radians(m_AngleH), Yaxis);
+//    glm::vec4 transformedView = rotM * glm::vec4(View, 1.0f);
+//    View = glm::vec3(transformedView.x, transformedView.y, transformedView.z);
+//
+//    // Rotate the view vector by the vertical angle around the horizontal axis
+//    glm::vec3 U = glm::cross(Yaxis, View);
+//    U = glm::normalize(U);
+//    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(m_AngleV), U);
+//    glm::vec4 rotatedVector = rotationMatrix * glm::vec4(View, 1.0f);
+//    View = glm::vec3(rotatedVector.x, rotatedVector.y, rotatedVector.z);;
+//
+//    m_target = View;
+//    m_target = glm::normalize(m_target);
+//
+//    m_up = glm::normalize(glm::cross(m_target, U)); 
 
 }
 
@@ -231,6 +210,26 @@ void Camera::OnRender()
 
 glm::mat4x4 Camera::GetMatrix()
 {
-    glm::mat4x4 CameraTransformation = glm::lookAt(m_pos, m_target, m_up);
+    glm::mat4x4 CameraTransformation = glm::lookAt(m_pos, m_pos - m_target, m_up);
     return CameraTransformation;
+}
+
+void Camera::Rotate(float verticalAngle, float horizontalAngle)
+{
+    Yaw += horizontalAngle;
+    Pitch += verticalAngle;
+    // Constrain the pitch angle to prevent the camera from flipping
+    if (Pitch > 89.0f) Pitch = 89.0f;
+    if (Pitch < -89.0f) Pitch = -89.0f;
+
+    
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    front.y = sin(glm::radians(Pitch));
+    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    m_target = glm::normalize(front);
+
+    glm::vec3 right = glm::normalize(glm::cross(m_target, glm::vec3(0.0f, 1.0f, 0.0f)));  // Recompute right vector
+    m_up = glm::normalize(glm::cross(right, m_target));
 }

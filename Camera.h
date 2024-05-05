@@ -24,7 +24,7 @@ public:
 
 
     glm::mat4x4 GetMatrix();
-
+    void Rotate(float verticalAngle, float horizontalAngle);
 private:
 
     void Init();
@@ -34,6 +34,9 @@ private:
     glm::vec3 m_target;
     glm::vec3 m_up;
     float m_speed = 0.25f;
+
+    float Yaw = 0.0f;
+    float Pitch = 0.0f;
 
     int m_windowWidth;
     int m_windowHeight;
