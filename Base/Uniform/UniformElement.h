@@ -45,22 +45,24 @@ public:
         }
         else if constexpr (std::is_same_v<T, Texture>) {
 
-            glBindTexture(GL_TEXTURE_2D, pBindedValue->getTexture());
+            glBindTexture(pBindedValue->getTextureTarget(), pBindedValue->getTexture());
             glUniform1i(uniformLocation, 0);
         }
         else if constexpr (std::is_same_v<T, Texture*>) {
             unsigned int texture_index = (*pBindedValue)->getTextureIndex();
             GLuint texture = (*pBindedValue)->getTexture();
+            GLenum target = (*pBindedValue)->getTextureTarget();
             glUniform1i(uniformLocation, texture_index);
             glActiveTexture(GL_TEXTURE0 + texture_index);
-            glBindTexture(GL_TEXTURE_2D, texture);
+            glBindTexture(target, texture);
         }
         else if constexpr (std::is_same_v<T, std::shared_ptr<Texture>>) {
             unsigned int texture_index = pBindedValue->get()->getTextureIndex();
             GLuint texture = (*pBindedValue)->getTexture();
-            glUniform1i(uniformLocation, texture_index);
+            GLenum target = (*pBindedValue)->getTextureTarget();
             glActiveTexture(GL_TEXTURE0 + texture_index);
-            glBindTexture(GL_TEXTURE_2D, texture);
+            glBindTexture(target, texture);
+            glUniform1i(uniformLocation, texture_index);
         }
 
         

@@ -37,6 +37,10 @@
 #include "Framebuffers/Framebuffer.h"
 #include "Mesh/Basic/Plane.h"
 #include "Mesh/Basic/Quad.h"
+#include "Mesh/Basic/Skybox.h"
+#include "Mesh/Basic/Sphere.h"
+
+
 
 typedef int32_t i32;
 typedef uint32_t u32;
@@ -72,15 +76,30 @@ float ar = (float)WinWidth / (float)(WinHeight);
 
 static bool openFilePicker = false;
 
-static void RenderSceneCB( vector<std::shared_ptr<Primitive>> &primitivesToDraw)
+static void RenderSceneSkybox(const vector<std::shared_ptr<Primitive>>& primitivesToDraw)
+{
+
+
+    glm::mat4x4 View = glm::mat4(glm::mat3(GameCamera.GetMatrix()));
+    glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
+    glm::mat4x4 VP = Projection * View;
+    glDepthFunc(GL_LEQUAL);
+    for (auto& primitive : primitivesToDraw)
+    {
+        primitive->Update(VP);
+    }
+    glDepthFunc(GL_LESS);
+}
+
+static void RenderSceneCB(const vector<std::shared_ptr<Primitive>> &primitivesToDraw)
 {
     float YRotationAngle = 1.0f;
 
     GameCamera.OnRender();
 
-    for (auto& primitive : primitivesToDraw) {
-        primitive->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
-    }
+//   for (auto& primitive : primitivesToDraw) {
+//       primitive->GetTransform().Rotate(YRotationAngle, YRotationAngle, 0.0f);
+//   }
 
     glm::mat4x4 View = GameCamera.GetMatrix();
     glm::mat4x4 Projection = glm::perspective(FOV, ar, NearZ, FarZ);
@@ -200,8 +219,13 @@ int main(int ArgCount, char** Args)
     const std::string pMaterialLightmapFragmentShader = "./Shaders/material_lightmap.fs";
     const std::string pAssetFragmentShader = "./Shaders/asset_model.fs";
 
-    CompiledShaderProgram screenShader = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSFileName);
+    const std::string pSkyboxVSShader = "./Shaders/skybox/shader_skybox.vs";
+    const std::string pSkyboxFSShader = "./Shaders/skybox/shader_skybox.fs";
 
+
+    CompiledShaderProgram skyboxShader = shaderCompiler.CompileShaders(pSkyboxVSShader, pSkyboxFSShader);
+
+    CompiledShaderProgram screenShader = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSFileName);
     CompiledShaderProgram screenShaderInversion = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSInversionFileName);
     CompiledShaderProgram screenShaderGrayscaleEnh = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSGrayscaleEnhancedFileName);
     CompiledShaderProgram screenShaderGrayscale = shaderCompiler.CompileShaders(pScreenVSFileName, pScreenFSGrayscaleFileName);
@@ -230,6 +254,10 @@ int main(int ArgCount, char** Args)
 
     glm::vec3 materialAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 
+   
+    
+    
+
     std::shared_ptr<CubeLightSource> light = std::make_shared<CubeLightSource>();;
     light->SetName("LightSource");
     light->AddShader(lightShader);
@@ -241,8 +269,8 @@ int main(int ArgCount, char** Args)
     Primitives.push_back(light);
     
     std::shared_ptr<ModelObject> cube = std::make_shared<ModelObject>();
-    std::unique_ptr<Cube2> mesh = std::make_unique<Cube2>();
-    std::shared_ptr<Texture> cubeTexture = std::make_shared<Texture>("./Textures/container2.png", "gSampler");
+    std::unique_ptr<Sphere> mesh = std::make_unique<Sphere>();
+    std::shared_ptr<Texture> cubeTexture = std::make_shared<Texture>("./Textures/earth2048.bmp", "gSampler");
     mesh.get()->AddTexture(cubeTexture.get());
     cube->SetName("Cube");
     cube->AddShader(textureShader);
@@ -390,11 +418,33 @@ int main(int ArgCount, char** Args)
     //
     Primitives.push_back(cube5);
     */
+    std::shared_ptr<ModelObject> skyBox = std::make_shared<ModelObject>();
+    std::unique_ptr<Skybox> skyBoxMesh = std::make_unique<Skybox>();
+    std::shared_ptr<Texture> skyboxTexture = std::make_shared<Texture>(std::vector<std::string>{
+        "./Textures/skybox/right.jpg",
+            "./Textures/skybox/left.jpg",
+            "./Textures/skybox/top.jpg",
+            "./Textures/skybox/bottom.jpg",
+            "./Textures/skybox/front.jpg",
+            "./Textures/skybox/back.jpg"
+    });
+    //skyBoxMesh->Setup();
+    skyBox->SetPosition(0.0, 0.0f, 0.0f);
+    skyBox->SetName("SkyBox");
+    skyBox->AddShader(skyboxShader);
+    skyBox->SetUniform("skybox", std::forward<shared_ptr<Texture>>(skyboxTexture));
+    skyBox->AddMesh(std::move(skyBoxMesh));
+    skyBox->Setup();
+    //Primitives.push_back(skyBox);
+
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     bool show_demo_window = true;
     bool show_another_window = false;
     bool attachFramebuffer = false;
     static int currentScreenShaderIndex = 0;
+    bool mouseHeldDown = false;
+    int lastX = 0, lastY = 0;
+    float sensitivity = 1.0f;
 
     std::vector<std::pair<std::string, CompiledShaderProgram>> screenShaderList = {
         {"Default", screenShader},
@@ -446,13 +496,32 @@ int main(int ArgCount, char** Args)
             }
             // Handle mouse motion
             else if (Event.type == SDL_MOUSEMOTION) {
-                mouseX = Event.motion.x;
-                mouseY = Event.motion.y;
-                int deltaX = Event.motion.xrel;
-                int deltaY = Event.motion.yrel;
-                std::cout << "Mouse moved: (" << mouseX << ", " << mouseY << "), DeltaX: " << deltaX << ", DeltaY: " << deltaY << std::endl;
+                if (mouseHeldDown) {
+                    Event.motion.xrel;
+                    mouseX = Event.motion.x;
+                    mouseY = Event.motion.y;
+                    int deltaX = (mouseX - lastX) * sensitivity;
+                    int deltaY = (mouseY - lastY) * sensitivity;
+                    
+                    lastX = mouseX;
+                    lastY = mouseY;
 
-                GameCamera.OnMouse(deltaX, deltaY);
+                    GameCamera.OnMouse(Event.motion.xrel, Event.motion.yrel  );
+                }
+            }
+            else if (Event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                if (Event.button.button == SDL_BUTTON_LEFT) {
+                    mouseHeldDown = true;
+                    lastX = Event.button.x;
+                    lastY = Event.button.y;
+                }
+            }
+            else if (Event.type == SDL_MOUSEBUTTONUP)
+            {
+                if (Event.button.button == SDL_BUTTON_LEFT) {
+                    mouseHeldDown = false;
+                }
             }
             else if (Event.type == SDL_QUIT)
             {
@@ -597,6 +666,7 @@ int main(int ArgCount, char** Args)
         
     
         RenderSceneCB(Primitives);
+        RenderSceneSkybox(std::vector<std::shared_ptr<Primitive>>{skyBox});
 
         if (attachFramebuffer)
         {
