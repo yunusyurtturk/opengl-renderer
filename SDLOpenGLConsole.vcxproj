@@ -171,6 +171,8 @@
     <ClInclude Include="Mesh\Basic\MeshTemplate.h" />
     <ClInclude Include="Mesh\Basic\Plane.h" />
     <ClInclude Include="Mesh\Basic\Quad.h" />
+    <ClInclude Include="Mesh\Basic\Skybox.h" />
+    <ClInclude Include="Mesh\Basic\Sphere.h" />
     <ClInclude Include="Mesh\Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Renderbuffer\Renderbuffer.h" />
@@ -183,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\asset_model.fs" />
+    <None Include="Shaders\Custom\shader_vertexinterpolate.fs" />
     <None Include="Shaders\diffuse_material.fs" />
     <None Include="Shaders\diffuse_material.vs" />
     <None Include="Shaders\light_source.fs" />
@@ -204,12 +207,20 @@
     <None Include="Shaders\shader.vs" />
     <None Include="Shaders\shader2.fs" />
     <None Include="Shaders\shader_solid.fs" />
+    <None Include="Shaders\Skybox\shader_skybox.fs" />
+    <None Include="Shaders\Skybox\shader_skybox.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\blending_transparent_window.png" />
     <Image Include="Textures\container2.png" />
     <Image Include="Textures\container2_specular.png" />
     <Image Include="Textures\grass.png" />
+    <Image Include="Textures\skybox\back.jpg" />
+    <Image Include="Textures\skybox\bottom.jpg" />
+    <Image Include="Textures\skybox\front.jpg" />
+    <Image Include="Textures\skybox\left.jpg" />
+    <Image Include="Textures\skybox\right.jpg" />
+    <Image Include="Textures\skybox\top.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -155,6 +155,12 @@
     <ClInclude Include="Renderbuffer\Renderbuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh\Basic\Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh\Basic\Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\shader.fs">
@@ -205,6 +211,9 @@
     <None Include="Shaders\Screen\Kernels\sharpen.fs" />
     <None Include="Shaders\Screen\Kernels\blur.fs" />
     <None Include="Shaders\Screen\Kernels\edge.fs" />
+    <None Include="Shaders\Skybox\shader_skybox.fs" />
+    <None Include="Shaders\Skybox\shader_skybox.vs" />
+    <None Include="Shaders\Custom\shader_vertexinterpolate.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\container2.png">
@@ -217,6 +226,24 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Textures\blending_transparent_window.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\skybox\back.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\skybox\bottom.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\skybox\front.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\skybox\left.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\skybox\right.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\skybox\top.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -184,7 +184,7 @@ int main(int ArgCount, char** Args)
         return 1;
     }
     ShaderCompiler shaderCompiler;
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
     glEnable(GL_DEPTH_TEST);
  //   glEnable(GL_STENCIL_TEST);
  //   glEnable(GL_BLEND);
@@ -274,12 +274,17 @@ int main(int ArgCount, char** Args)
     mesh.get()->AddTexture(cubeTexture.get());
     cube->SetName("Cube");
     cube->AddShader(textureShader);
-    cube->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(cubeTexture));
+    //cube->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(cubeTexture));
     cube->AddMesh(std::move(mesh));
     cube->SetPosition(0.0, -3.0f, 0.0f);
+    cube->Rotate(-90.0f, 0.0f, 0.5f);
+    cube->addLambda([&cube]() {
+        cube->Rotate(0.0f, 0.5f, 0.0f);
+    });
+    cube->Rotate(1.5f, 0.0f, 0.0f);
     cube->Setup();
     Primitives.push_back(cube);
-
+    glPointSize(10.0f);
     
 
     std::shared_ptr<ModelObject> screenQuad = std::make_shared<ModelObject>();

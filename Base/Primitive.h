@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <functional>
 
 #include "../WorldTransform.h"
 #include "../CompiledShaderProgram.h"
@@ -30,6 +31,7 @@ protected:
 	std::string m_Name;
 
 	std::vector<std::unique_ptr<Mesh>> meshes;
+	std::vector<std::function<void()>> lambdas;
 public:
 	Primitive()
 	{
@@ -64,6 +66,10 @@ public:
 	void Rotate(float x, float y, float z)
 	{
 		m_transform.Rotate(x, y, z);
+	}
+	void addLambda(std::function<void()> func)
+	{
+		lambdas.push_back(func);
 	}
 	virtual void AddShader(CompiledShaderProgram shader) {
 		m_Shaders[m_ShaderIndex] = shader;
@@ -125,6 +131,12 @@ public:
 		Update(vp, m_Shaders[0]);
 	}
 
+	void ExecLambdas() {
+		for (auto& func : lambdas) {
+			func();
+		}
+	}
+
 	virtual void Update(glm::mat4x4& vp, CompiledShaderProgram& shader)
 	{
 		glUseProgram(shader.ShaderProgram);
@@ -135,6 +147,8 @@ public:
 		if (gWLocation != -1) {
 			glUniformMatrix4fv(gWLocation, 1, GL_FALSE, glm::value_ptr(GetTransform().GetMatrix()));
 		}
+
+		ExecLambdas();
 
 		for (auto& uniform : uniformElements) {
 			uniform.get()->Update();
