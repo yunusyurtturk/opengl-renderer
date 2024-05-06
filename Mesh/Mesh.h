@@ -16,6 +16,7 @@ private:
 	std::vector<Texture *> textures;
 protected:
 	int vertexCount = 0;
+	int indexCount = 0;
 	GLuint VAO = -1;
 public:
 	Mesh()
@@ -95,9 +96,10 @@ public:
 		std::vector<int>& Index = GetIndex();
 
 		if (Index.size() > 0) {
+			indexCount = Index.size();
 			glGenBuffers(1, &IBO);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, Index.size() * sizeof(int), &Index[0], GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(int), &Index[0], GL_STATIC_DRAW); 
 		}
 	}
 	virtual void Draw(CompiledShaderProgram &shader)
@@ -129,9 +131,9 @@ public:
 			glBindTexture(GL_TEXTURE_2D, textures[i]->texture);
 		}
 		glBindVertexArray(VAO);
-		//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-		glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glActiveTexture(GL_TEXTURE0);
 	}

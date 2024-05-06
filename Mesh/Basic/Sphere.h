@@ -7,15 +7,14 @@
 class Sphere : public Mesh
 {
 private:
-	static const int VERTEX_COUNT = 36;
     float radius = 1.0f;
     unsigned int sectorCount = 36;
     unsigned int stackCount = 18;
+    unsigned int vertexCount = (sectorCount + 1) * (stackCount + 1);
 	void initSphereVertices()
 	{
         std::vector<Vertex>& Vertices = GetVertex();
 
-        unsigned int vertexCount = 0;
         const float PI = acos(-1.0f);
 
 
@@ -26,6 +25,8 @@ private:
         float sectorStep = 2 * PI / sectorCount;
         float stackStep = PI / stackCount;
         float sectorAngle, stackAngle;
+        float color = 1.0f;
+        float colorStep = 1.0f / ((sectorCount + 1) * (1 + stackCount));
 
         for (int i = 0; i <= stackCount; ++i)
         {
@@ -33,6 +34,7 @@ private:
             xy = radius * cosf(stackAngle);             // r * cos(u)
             z = radius * sinf(stackAngle);              // r * sin(u)
 
+            std::cout << "Z: " << z << "\n";
             // add (sectorCount+1) vertices per stack
             // the first and last vertices have same position and normal, but different tex coords
             for (int j = 0; j <= sectorCount; ++j)
@@ -52,9 +54,10 @@ private:
                 s = (float)j / sectorCount;
                 t = (float)i / stackCount;
 
-                Vertices.emplace_back(x, y, z, 1.0f, 0.5f, 0.5f, nx, ny, nz, s, t);
+                float vertexColor = 1.0f - colorStep * (i * sectorCount + j);
 
-                vertexCount++;
+                Vertices.emplace_back(x, y, z, vertexColor, vertexColor, vertexColor, nx, ny, nz, s, t);
+
             }
         }
 
@@ -104,6 +107,11 @@ public:
 
 	virtual void Draw(CompiledShaderProgram& shader) override
 	{
-        Mesh::Draw(shader);
-	}
+       // glBindVertexArray(VAO);
+       // glActiveTexture(GL_TEXTURE0);
+       // glDrawArrays(GL_POINTS, 0, vertexCount);
+
+       Mesh::Draw(shader);
+        
+    }    
 };
