@@ -8,7 +8,7 @@ class Texture;
 class Mesh
 {
 private:
-	GLuint VBO = -1;
+	
 	GLuint IBO = -1;
 
 	std::vector<Vertex> vertex;
@@ -18,6 +18,7 @@ protected:
 	int vertexCount = 0;
 	int indexCount = 0;
 	GLuint VAO = -1;
+	GLuint VBO = -1;
 public:
 	Mesh()
 	{

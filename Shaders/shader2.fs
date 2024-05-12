@@ -1,11 +1,14 @@
-#version 330
+#version 430
 
 in vec3 Color;
 in vec2 TexCoord0;
+uniform sampler2D gSampler;
 
 out vec4 FragColor;
 
+
 void main()
 {
-  FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+  vec4 textureColor = texture(gSampler, TexCoord0);
+  FragColor = vec4(textureColor.r, textureColor.r, textureColor.r, 1.0);
 }

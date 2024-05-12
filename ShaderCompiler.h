@@ -45,30 +45,54 @@ public:
 
         glAttachShader(ShaderProgram, ShaderObj);
     }
-    CompiledShaderProgram CompileShaders(const std::string &vertexShaderFile, const std::string &fragmentShaderFile)
+    CompiledShaderProgram CompileShaders(
+        const std::string &vertexShaderFile, 
+        const std::string &fragmentShaderFile, 
+        const std::string& tessellationControlFile = "", 
+        const std::string& tessellationEvalFile = "")
     {
         CompiledShaderProgram retShaderProgram;
         GLuint ShaderProgram = -1;
         std::string vertexShader;
         std::string fragmentShader;
+        std::string tessellationControl;
+        std::string tessellationEval;
         ShaderProgram = glCreateProgram();
         std::string vs, fs;
 
         if (ShaderProgram == 0) {
-            printf("HATA");
+            printf("Error creating shader program glCreateProgram()");
             exit(1);
         }
 
         if (!ReadFile(vertexShaderFile.c_str(), vertexShader)) {
+            std::cout << "Vertex shader file read problem:" << vertexShaderFile << "\n";
             exit(1);
         }
 
         AddShader(ShaderProgram, vertexShader.c_str(), vertexShaderFile, GL_VERTEX_SHADER);
 
         if (!ReadFile(fragmentShaderFile.c_str(), fragmentShader)) {
+            std::cout << "Fragment shader file read problem:" << vertexShaderFile << "\n";
             exit(1);
         }
         AddShader(ShaderProgram, fragmentShader.c_str(), fragmentShaderFile, GL_FRAGMENT_SHADER);
+
+        if (tessellationControlFile != "") {
+            if (!ReadFile(tessellationControlFile.c_str(), tessellationControl)) {
+                std::cout << "Tessellation control shader file read problem:" << vertexShaderFile << "\n";
+                exit(1);
+            }
+            AddShader(ShaderProgram, tessellationControl.c_str(), tessellationControlFile, GL_TESS_CONTROL_SHADER);
+        }
+
+        if (tessellationEvalFile != "") {
+            if (!ReadFile(tessellationEvalFile.c_str(), tessellationEval)) {
+                std::cout << "Tessellation evaluation shader file read problem:" << vertexShaderFile << "\n";
+                exit(1);
+            }
+            AddShader(ShaderProgram, tessellationEval.c_str(), tessellationEvalFile, GL_TESS_EVALUATION_SHADER);
+        }
 
         GLint Success = 0;
         GLchar ErrorLog[1024] = { 0 };
