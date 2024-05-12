@@ -4,7 +4,7 @@
 #include <SDL_opengl.h>
 #include "../../CompiledShaderProgram.h"
 
-class SphereTess : public Mesh
+class QuadTess : public Mesh
 {
 private:
     float radius = 1.0f;
@@ -17,8 +17,8 @@ private:
     {
         std::vector<Vertex>& vertices = GetVertex();
 
-        int width = 1;
-        int height = 1;
+        int width = 4;
+        int height = 4;
 
         for (unsigned i = 0; i <= rez - 1; i++)
         {
@@ -69,7 +69,7 @@ private:
         glPatchParameteri(GL_PATCH_VERTICES, 4);
     }
 public:
-    SphereTess() : Mesh()
+    QuadTess() : Mesh()
     {
         initSphereVertices();
     }

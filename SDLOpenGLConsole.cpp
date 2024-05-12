@@ -39,7 +39,7 @@
 #include "Mesh/Basic/Quad.h"
 #include "Mesh/Basic/Skybox.h"
 #include "Mesh/Basic/Sphere.h"
-#include "Mesh/Basic/SphereTess.h"
+#include "Mesh/Basic/QuadTess.h"
 #include "Mesh/Basic/BezierTess.h"
 
 
@@ -256,10 +256,10 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram assetShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pAssetFragmentShader);
 
     CompiledShaderProgram tesselQuadTextureShader = shaderCompiler.CompileShaders(
-        "./Shaders/Tesselation/Bezier/tesselation_vertex.vs", 
-        "./Shaders/Tesselation/Bezier/tesselation_fragment.fs", 
-        "./Shaders/Tesselation/Bezier/tesselation_control.tss", 
-        "./Shaders/Tesselation/Bezier/tesselation.tss");
+        "./Shaders/Tesselation/Default/quad_tesselation_vertex.vs", 
+        "./Shaders/Tesselation/Default/quad_tesselation_fragment.fs", 
+        "./Shaders/Tesselation/Default/quad_tesselation_control.tss", 
+        "./Shaders/Tesselation/Default/quad_tesselation.tss");
 
 
     CompiledShaderProgram &pScreenShaderSelected = screenShader;
@@ -303,15 +303,14 @@ int main(int ArgCount, char** Args)
  //   Primitives.push_back(cube);
 
     std::shared_ptr<ModelObject> quadTess = std::make_shared<ModelObject>();
-    std::unique_ptr<SphereTess> quadTessMesh = std::make_unique<SphereTess>();
+    std::unique_ptr<QuadTess> quadTessMesh = std::make_unique<QuadTess>();
     std::shared_ptr<Texture> quadMeshTexture = std::make_shared<Texture>("./Textures/earth_height.png", "gSampler");
     quadTessMesh.get()->AddTexture(quadMeshTexture.get());
     quadTess->SetName("QuadTess");
-    quadTess->AddShader(tesselLineTextureShader);
+    quadTess->AddShader(tesselQuadTextureShader);
     quadTess->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(quadMeshTexture));
-    quadTess->SetUniform("gNumSegments", 8);
     quadTess->AddMesh(std::move(quadTessMesh));
-    quadTess->SetPosition(0.1f, 0.1f, 0.0f);
+    quadTess->SetPosition(1.0f, 1.0f, 0.0f);
     // moon->addLambda([&cube, &moon]() {
     //
     //     glm::vec3 moonPos = cube.get()->GetTransform().GetPosition() + 3.0f;
