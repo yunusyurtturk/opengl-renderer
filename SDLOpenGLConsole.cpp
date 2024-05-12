@@ -41,6 +41,7 @@
 #include "Mesh/Basic/Sphere.h"
 #include "Mesh/Basic/QuadTess.h"
 #include "Mesh/Basic/BezierTess.h"
+#include "Mesh/Basic/SphereTess.h"
 
 
 
@@ -302,6 +303,24 @@ int main(int ArgCount, char** Args)
     cube->Setup();
  //   Primitives.push_back(cube);
 
+
+    static float outerTessellation = 4.0;
+    static float innerTessellation = 4.0;
+    std::shared_ptr<ModelObject> sphereTess = std::make_shared<ModelObject>();
+    std::unique_ptr<SphereTess> sphereTesMesh = std::make_unique<SphereTess>();
+    std::shared_ptr<Texture> sphereTessTexture = std::make_shared<Texture>("./Textures/earth_height.png", "gSampler");
+    sphereTesMesh.get()->AddTexture(sphereTessTexture.get());
+    sphereTess->SetName("QuadTess");
+    sphereTess->AddShader(tesselQuadTextureShader);
+    sphereTess->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(sphereTessTexture));
+    sphereTess->SetUniform("outerTessellation", &outerTessellation);
+    sphereTess->SetUniform("innerTessellation", &innerTessellation);
+    sphereTess->AddMesh(std::move(sphereTesMesh));
+    sphereTess->SetPosition(-1.3f, -1.0f, 0.0f);
+    sphereTess->Rotate(-90.0f, 0.0f, 0.0f);
+    sphereTess->Setup();
+    Primitives.push_back(sphereTess);
+
     std::shared_ptr<ModelObject> quadTess = std::make_shared<ModelObject>();
     std::unique_ptr<QuadTess> quadTessMesh = std::make_unique<QuadTess>();
     std::shared_ptr<Texture> quadMeshTexture = std::make_shared<Texture>("./Textures/earth_height.png", "gSampler");
@@ -310,7 +329,7 @@ int main(int ArgCount, char** Args)
     quadTess->AddShader(tesselQuadTextureShader);
     quadTess->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(quadMeshTexture));
     quadTess->AddMesh(std::move(quadTessMesh));
-    quadTess->SetPosition(1.0f, 1.0f, 0.0f);
+    quadTess->SetPosition(1.3f, 1.0f, 0.0f);
     // moon->addLambda([&cube, &moon]() {
     //
     //     glm::vec3 moonPos = cube.get()->GetTransform().GetPosition() + 3.0f;
@@ -320,6 +339,7 @@ int main(int ArgCount, char** Args)
     quadTess->Rotate(1.5f, 0.0f, 0.0f);
     quadTess->Setup();
     Primitives.push_back(quadTess);
+
 
     std::shared_ptr<ModelObject> moon = std::make_shared<ModelObject>();
     std::unique_ptr<BezierTess> moonMesh = std::make_unique<BezierTess>();
@@ -332,12 +352,6 @@ int main(int ArgCount, char** Args)
     moon->AddMesh(std::move(moonMesh));
     moon->SetPosition(0.0, 0.0f, 0.0f);
     moon->Rotate(-45.0f, 0.0f, 0.5f);
-   // moon->addLambda([&cube, &moon]() {
-   //
-   //     glm::vec3 moonPos = cube.get()->GetTransform().GetPosition() + 3.0f;
-   //     moon->SetPosition(moonPos.x, moonPos.y, moonPos.z);
-   //     moon->Rotate(0.0f, 0.5f * sphereRotationMultiplier, 0.0f);
-   //     });
     moon->Rotate(1.5f, 0.0f, 0.0f);
     moon->Setup();
     Primitives.push_back(moon);
@@ -653,6 +667,8 @@ int main(int ArgCount, char** Args)
             ImGui::Checkbox("Another Window", &show_another_window);
             ImGui::Separator();
             ImGui::SliderFloat("RotationSpeed", &sphereRotationMultiplier, 0.0f, 1.0f);
+            ImGui::SliderFloat("OuterTessellation", &outerTessellation, 1.0f, 32.0f);
+            ImGui::SliderFloat("InnerTessellation", &innerTessellation, 1.0f, 32.0f);
             ImGui::Checkbox("FrameBuffer", &attachFramebuffer);
             
             std::vector<const char*> screenShaderNamesList;

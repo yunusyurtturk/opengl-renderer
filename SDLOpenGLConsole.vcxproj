@@ -174,6 +174,7 @@
     <ClInclude Include="Mesh\Basic\Quad.h" />
     <ClInclude Include="Mesh\Basic\Skybox.h" />
     <ClInclude Include="Mesh\Basic\Sphere.h" />
+    <ClInclude Include="Mesh\Basic\QuadTess.h" />
     <ClInclude Include="Mesh\Basic\SphereTess.h" />
     <ClInclude Include="Mesh\Mesh.h" />
     <ClInclude Include="Object.h" />
@@ -216,16 +217,17 @@
     <None Include="Shaders\Tesselation\Bezier\tesselation.tss" />
     <None Include="Shaders\Tesselation\Bezier\tesselation_control.tss" />
     <None Include="Shaders\Tesselation\Bezier\tesselation_vertex.vs" />
-    <None Include="Shaders\Tesselation\Default\tesselation.tss" />
-    <None Include="Shaders\Tesselation\Default\tesselation_control.tss" />
-    <None Include="Shaders\Tesselation\Default\tesselation_fragment.fs" />
-    <None Include="Shaders\Tesselation\Default\tesselation_vertex.vs" />
+    <None Include="Shaders\Tesselation\Default\quad_tesselation.tss" />
+    <None Include="Shaders\Tesselation\Default\quad_tesselation_control.tss" />
+    <None Include="Shaders\Tesselation\Default\quad_tesselation_fragment.fs" />
+    <None Include="Shaders\Tesselation\Default\quad_tesselation_vertex.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\yunus\Downloads\ear0xuu2.jpg\ear0xuu2.jpg" />
     <Image Include="Textures\blending_transparent_window.png" />
     <Image Include="Textures\container2.png" />
     <Image Include="Textures\container2_specular.png" />
+    <Image Include="Textures\earth2048.bmp" />
     <Image Include="Textures\earth_height.png" />
     <Image Include="Textures\grass.png" />
     <Image Include="Textures\skybox\back.jpg" />
