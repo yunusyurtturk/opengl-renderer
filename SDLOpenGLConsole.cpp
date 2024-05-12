@@ -39,6 +39,8 @@
 #include "Mesh/Basic/Quad.h"
 #include "Mesh/Basic/Skybox.h"
 #include "Mesh/Basic/Sphere.h"
+#include "Mesh/Basic/SphereTess.h"
+#include "Mesh/Basic/BezierTess.h"
 
 
 
@@ -186,6 +188,8 @@ int main(int ArgCount, char** Args)
     ShaderCompiler shaderCompiler;
     stbi_set_flip_vertically_on_load(false);
     glEnable(GL_DEPTH_TEST);
+
+
  //   glEnable(GL_STENCIL_TEST);
  //   glEnable(GL_BLEND);
  //   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -202,9 +206,14 @@ int main(int ArgCount, char** Args)
     const std::string pScreenKernelSharpenFileName = "./Shaders/Screen/Kernels/sharpen.fs";
 
     const std::string pVSFileName  = "./Shaders/shader.vs";
+    const std::string pTesselVSFileName  = "./Shaders/Tesselation/Bezier/tesselation_vertex.vs";
+    const std::string pTesselFSFileName  = "./Shaders/Tesselation/Bezier/tesselation_fragment.fs";
     const std::string pFSSolidFileName = "./Shaders/shader_solid.fs";
     const std::string pFSFileName  = "./Shaders/shader.fs";
     const std::string pFSFileName2 = "./Shaders/shader2.fs";
+    const std::string pGSFileName = "./Shaders/Geometry/geometry_height.gs";
+    const std::string pTSControlFileName = "./Shaders/Tesselation/Bezier/tesselation_control.tss";
+    const std::string pTSEvalFileName = "./Shaders/Tesselation/Bezier/tesselation.tss";
     const std::string pLightEffectedFragmentShader = "./Shaders/light_source.fs";
     const std::string pLightEffectedVertexShader = "./Shaders/light_source.vs";
     const std::string pLightSourceBaseFragmentShader = "./Shaders/light_source_base.fs";
@@ -237,11 +246,21 @@ int main(int ArgCount, char** Args)
     CompiledShaderProgram solidShader = shaderCompiler.CompileShaders(pVSFileName, pFSSolidFileName);
     CompiledShaderProgram textureShader = shaderCompiler.CompileShaders(pVSFileName, pFSFileName);
     CompiledShaderProgram textureShader2 = shaderCompiler.CompileShaders(pVSFileName, pFSFileName2);
+    CompiledShaderProgram tesselLineTextureShader = shaderCompiler.CompileShaders(pTesselVSFileName, pTesselFSFileName, pTSControlFileName, pTSEvalFileName);
+    //CompiledShaderProgram tesselLineTextureShader = shaderCompiler.CompileShaders(pTesselVSFileName, pTesselFSFileName);
+
     CompiledShaderProgram diffuseShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pBasicDiffuseMaterialFragmentShader);
     CompiledShaderProgram lightShader = shaderCompiler.CompileShaders(pLightSourceBaseVertexShader, pLightSourceBaseFragmentShader);
     CompiledShaderProgram materialShader = shaderCompiler.CompileShaders(pBasicDiffuseMaterialVertexShader, pMaterialFragmentShader);
     CompiledShaderProgram lightmapShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pMaterialLightmapFragmentShader);
     CompiledShaderProgram assetShader = shaderCompiler.CompileShaders(pMaterialLightmapVertexShader, pAssetFragmentShader);
+
+    CompiledShaderProgram tesselQuadTextureShader = shaderCompiler.CompileShaders(
+        "./Shaders/Tesselation/Bezier/tesselation_vertex.vs", 
+        "./Shaders/Tesselation/Bezier/tesselation_fragment.fs", 
+        "./Shaders/Tesselation/Bezier/tesselation_control.tss", 
+        "./Shaders/Tesselation/Bezier/tesselation.tss");
+
 
     CompiledShaderProgram &pScreenShaderSelected = screenShader;
 
@@ -254,10 +273,6 @@ int main(int ArgCount, char** Args)
 
     glm::vec3 materialAmbient = glm::vec3(0.5f, 0.5f, 0.5f);
 
-   
-    
-    
-
     std::shared_ptr<CubeLightSource> light = std::make_shared<CubeLightSource>();;
     light->SetName("LightSource");
     light->AddShader(lightShader);
@@ -268,23 +283,65 @@ int main(int ArgCount, char** Args)
     light->Setup();
     Primitives.push_back(light);
     
+    static float sphereRotationMultiplier = 1.0f;
     std::shared_ptr<ModelObject> cube = std::make_shared<ModelObject>();
     std::unique_ptr<Sphere> mesh = std::make_unique<Sphere>();
+   // std::shared_ptr<Texture> cubeTexture = std::make_shared<Texture>("./Textures/world.topo.bathy.200407.3x21600x10800.jpg", "gSampler");
     std::shared_ptr<Texture> cubeTexture = std::make_shared<Texture>("./Textures/earth2048.bmp", "gSampler");
     mesh.get()->AddTexture(cubeTexture.get());
-    cube->SetName("Cube");
-    cube->AddShader(textureShader);
-    //cube->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(cubeTexture));
+    cube->SetName("Earth");
+    cube->AddShader(textureShader2);
+    cube->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(cubeTexture));
     cube->AddMesh(std::move(mesh));
     cube->SetPosition(0.0, -3.0f, 0.0f);
     cube->Rotate(-90.0f, 0.0f, 0.5f);
     cube->addLambda([&cube]() {
-        cube->Rotate(0.0f, 0.5f, 0.0f);
+        cube->Rotate(0.0f, 0.5f * sphereRotationMultiplier, 0.0f);
     });
     cube->Rotate(1.5f, 0.0f, 0.0f);
     cube->Setup();
-    Primitives.push_back(cube);
-    glPointSize(10.0f);
+ //   Primitives.push_back(cube);
+
+    std::shared_ptr<ModelObject> quadTess = std::make_shared<ModelObject>();
+    std::unique_ptr<SphereTess> quadTessMesh = std::make_unique<SphereTess>();
+    std::shared_ptr<Texture> quadMeshTexture = std::make_shared<Texture>("./Textures/earth_height.png", "gSampler");
+    quadTessMesh.get()->AddTexture(quadMeshTexture.get());
+    quadTess->SetName("QuadTess");
+    quadTess->AddShader(tesselLineTextureShader);
+    quadTess->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(quadMeshTexture));
+    quadTess->SetUniform("gNumSegments", 8);
+    quadTess->AddMesh(std::move(quadTessMesh));
+    quadTess->SetPosition(0.1f, 0.1f, 0.0f);
+    // moon->addLambda([&cube, &moon]() {
+    //
+    //     glm::vec3 moonPos = cube.get()->GetTransform().GetPosition() + 3.0f;
+    //     moon->SetPosition(moonPos.x, moonPos.y, moonPos.z);
+    //     moon->Rotate(0.0f, 0.5f * sphereRotationMultiplier, 0.0f);
+    //     });
+    quadTess->Rotate(1.5f, 0.0f, 0.0f);
+    quadTess->Setup();
+    Primitives.push_back(quadTess);
+
+    std::shared_ptr<ModelObject> moon = std::make_shared<ModelObject>();
+    std::unique_ptr<BezierTess> moonMesh = std::make_unique<BezierTess>();
+    std::shared_ptr<Texture> moonTexture = std::make_shared<Texture>("./Textures/earth_height.png", "gSampler");
+    moonMesh.get()->AddTexture(moonTexture.get());
+    moon->SetName("EarthHeight");
+    moon->AddShader(tesselLineTextureShader);
+    moon->SetUniform("gSampler", std::forward<shared_ptr<Texture>>(moonTexture));
+    moon->SetUniform("gNumSegments", 8);
+    moon->AddMesh(std::move(moonMesh));
+    moon->SetPosition(0.0, 0.0f, 0.0f);
+    moon->Rotate(-45.0f, 0.0f, 0.5f);
+   // moon->addLambda([&cube, &moon]() {
+   //
+   //     glm::vec3 moonPos = cube.get()->GetTransform().GetPosition() + 3.0f;
+   //     moon->SetPosition(moonPos.x, moonPos.y, moonPos.z);
+   //     moon->Rotate(0.0f, 0.5f * sphereRotationMultiplier, 0.0f);
+   //     });
+    moon->Rotate(1.5f, 0.0f, 0.0f);
+    moon->Setup();
+    Primitives.push_back(moon);
     
 
     std::shared_ptr<ModelObject> screenQuad = std::make_shared<ModelObject>();
@@ -596,6 +653,7 @@ int main(int ArgCount, char** Args)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
             ImGui::Separator();
+            ImGui::SliderFloat("RotationSpeed", &sphereRotationMultiplier, 0.0f, 1.0f);
             ImGui::Checkbox("FrameBuffer", &attachFramebuffer);
             
             std::vector<const char*> screenShaderNamesList;
@@ -671,7 +729,7 @@ int main(int ArgCount, char** Args)
         
     
         RenderSceneCB(Primitives);
-        RenderSceneSkybox(std::vector<std::shared_ptr<Primitive>>{skyBox});
+    //    RenderSceneSkybox(std::vector<std::shared_ptr<Primitive>>{skyBox});
 
         if (attachFramebuffer)
         {

@@ -161,6 +161,12 @@
     <ClInclude Include="Mesh\Basic\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh\Basic\SphereTess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh\Basic\BezierTess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\shader.fs">
@@ -214,6 +220,15 @@
     <None Include="Shaders\Skybox\shader_skybox.fs" />
     <None Include="Shaders\Skybox\shader_skybox.vs" />
     <None Include="Shaders\Custom\shader_vertexinterpolate.fs" />
+    <None Include="Shaders\Geometry\geometry_height.gs" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation.tss" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation_control.tss" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation_vertex.vs" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation_fragment.fs" />
+    <None Include="Shaders\Tesselation\Default\tesselation.tss" />
+    <None Include="Shaders\Tesselation\Default\tesselation_control.tss" />
+    <None Include="Shaders\Tesselation\Default\tesselation_fragment.fs" />
+    <None Include="Shaders\Tesselation\Default\tesselation_vertex.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\container2.png">
@@ -244,6 +259,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Textures\skybox\top.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="C:\Users\yunus\Downloads\ear0xuu2.jpg\ear0xuu2.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\earth_height.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

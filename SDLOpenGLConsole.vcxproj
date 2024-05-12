@@ -166,6 +166,7 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="Mesh\Basic\BezierTess.h" />
     <ClInclude Include="Mesh\Basic\Cube.h" />
     <ClInclude Include="Mesh\Basic\Cube2.h" />
     <ClInclude Include="Mesh\Basic\MeshTemplate.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Mesh\Basic\Quad.h" />
     <ClInclude Include="Mesh\Basic\Skybox.h" />
     <ClInclude Include="Mesh\Basic\Sphere.h" />
+    <ClInclude Include="Mesh\Basic\SphereTess.h" />
     <ClInclude Include="Mesh\Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Renderbuffer\Renderbuffer.h" />
@@ -188,6 +190,7 @@
     <None Include="Shaders\Custom\shader_vertexinterpolate.fs" />
     <None Include="Shaders\diffuse_material.fs" />
     <None Include="Shaders\diffuse_material.vs" />
+    <None Include="Shaders\Geometry\geometry_height.gs" />
     <None Include="Shaders\light_source.fs" />
     <None Include="Shaders\light_source.vs" />
     <None Include="Shaders\light_source_base.fs" />
@@ -209,11 +212,21 @@
     <None Include="Shaders\shader_solid.fs" />
     <None Include="Shaders\Skybox\shader_skybox.fs" />
     <None Include="Shaders\Skybox\shader_skybox.vs" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation_fragment.fs" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation.tss" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation_control.tss" />
+    <None Include="Shaders\Tesselation\Bezier\tesselation_vertex.vs" />
+    <None Include="Shaders\Tesselation\Default\tesselation.tss" />
+    <None Include="Shaders\Tesselation\Default\tesselation_control.tss" />
+    <None Include="Shaders\Tesselation\Default\tesselation_fragment.fs" />
+    <None Include="Shaders\Tesselation\Default\tesselation_vertex.vs" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="C:\Users\yunus\Downloads\ear0xuu2.jpg\ear0xuu2.jpg" />
     <Image Include="Textures\blending_transparent_window.png" />
     <Image Include="Textures\container2.png" />
     <Image Include="Textures\container2_specular.png" />
+    <Image Include="Textures\earth_height.png" />
     <Image Include="Textures\grass.png" />
     <Image Include="Textures\skybox\back.jpg" />
     <Image Include="Textures\skybox\bottom.jpg" />
